@@ -195,26 +195,30 @@
             </div>
         </div>
 
-        <div class="step-section">
+        <div class="step-section" id="step2Section">
             <h3>Step 2: Thread Details</h3>
-            <p>After finding a thread using your search keywords, enter the details below:</p>
+            <p id="step2Instructions">Complete Step 1 first to unlock this section.</p>
             
             <div class="input-group">
                 <label for="threadUrl">Thread/Post URL you found:</label>
-                <input type="url" id="threadUrl" placeholder="https://reddit.com/r/sleep/comments/..." />
+                <input type="url" id="threadUrl" placeholder="https://reddit.com/r/sleep/comments/..." disabled />
             </div>
 
             <div class="input-group">
                 <label for="username">Your Username:</label>
-                <input type="text" id="username" placeholder="YourUsername123" />
+                <input type="text" id="username" placeholder="YourUsername123" disabled />
             </div>
         </div>
 
-        <div class="step-section">
+        <div class="step-section" id="step3Section">
             <h3>Step 3: Get Your Message</h3>
-            <button class="button" onclick="checkAndClaim()" id="claimButton">
+            <p id="step3Instructions">Complete Steps 1 & 2, then wait for the search timer.</p>
+            <button class="button" onclick="checkAndClaim()" id="claimButton" disabled>
                 🔍 Validate Thread & Get Message
             </button>
+            <div id="timerDisplay" style="display: none; margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px; text-align: center;">
+                ⏱️ Please wait <span id="countdown">60</span> seconds to ensure you've had time to search for a relevant thread.
+            </div>
         </div>
 
         <div id="resultSection" class="message-result">
