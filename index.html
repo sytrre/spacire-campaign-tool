@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Spacire Campaign Tool</title>
+    <title>Campaign Tool</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -157,8 +157,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎯 Spacire Campaign Tool</h1>
-        <p>Real-time conflict prevention across all users!</p>
+        <h1>🎯 Campaign Tool</h1>
 
         <!-- Setup Status -->
         <div id="connectionStatus" class="connection-status disconnected">
@@ -224,6 +223,15 @@
                 <span id="statusText">Checking thread availability...</span>
             </div>
             <div id="messageContent"></div>
+        </div>
+
+        <!-- Admin Stats Section (hidden by default) -->
+        <div id="adminStats" class="step-section" style="margin-top: 30px; display: none; background: #f0f0f0;">
+            <h4>📊 Admin - Campaign Statistics</h4>
+            <p>Total threads claimed: <span id="claimedCount">Loading...</span></p>
+            <p>Messages available: <span id="messageCount">225</span></p>
+            <p>Last sync: <span id="lastSync">Never</span></p>
+            <p style="color: #28a745; font-weight: bold;">🚀 Admin View Active</p>
         </div>
     </div>
 
@@ -485,6 +493,24 @@
             "Why do people think aromatherapy requires a big investment in diffusers and multiple oils? Simple pillow sprays give you all the benefits with zero complexity - just spray and sleep. Check out Spacire's simple, effective aromatherapy solutions that anyone can use.",
             "Anyone else find that having a signature scent for bedtime helps train your brain to recognize sleep time? When you smell that particular blend, your body automatically starts preparing for rest. Spacire's signature sleep aromatherapy creates powerful sleep associations."
         ];
+
+        // ========================================
+        // Admin Functions
+        // ========================================
+
+        // Check if admin mode is enabled via URL parameter
+        function isAdminMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('admin') === 'true';
+        }
+
+        // Initialize admin mode if parameter is present
+        function initializeAdmin() {
+            if (isAdminMode()) {
+                document.getElementById('adminStats').style.display = 'block';
+                console.log('Admin mode activated');
+            }
+        }
 
         // ========================================
         // Search Keywords for Thread Discovery
@@ -884,10 +910,20 @@
             });
         }
 
-        // Update stats display (admin only - hidden from users)
+        // Update stats display (admin only when ?admin=true)
         function updateStats() {
-            // Stats removed from user interface
-            // Add back for admin panel if needed
+            if (isAdminMode()) {
+                const claimedCountEl = document.getElementById('claimedCount');
+                const lastSyncEl = document.getElementById('lastSync');
+                
+                if (claimedCountEl) {
+                    claimedCountEl.textContent = campaignStats.totalThreadsClaimed;
+                }
+                if (lastSyncEl) {
+                    lastSyncEl.textContent = lastSyncTime ? 
+                        lastSyncTime.toLocaleTimeString() : 'Never';
+                }
+            }
         }
 
         // ========================================
@@ -896,6 +932,7 @@
 
         // Initialize on page load
         window.onload = async function() {
+            initializeAdmin(); // Check for admin mode
             updateStats();
             
             if (isGistConfigured()) {
