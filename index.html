@@ -1187,22 +1187,6 @@
                 updateConnectionStatus(false, 'Configuration required - see setup instructions');
             }
         };
-
-        // Show setup warning if not configured
-        if (!isGistConfigured()) {
-            document.addEventListener('DOMContentLoaded', function() {
-                const container = document.querySelector('.container');
-                const setupWarning = document.createElement('div');
-                setupWarning.className = 'setup-warning';
-                setupWarning.innerHTML = `
-                    <strong>⚙️ Setup Required:</strong><br>
-                    This tool needs GitHub Gist configuration for real conflict prevention.<br>
-                    Without setup, conflicts between users are possible.<br>
-                    <small>Replace {{SPACIRE_GIST_ID}} and {{SPACIRE_GITHUB_TOKEN}} in the code.</small>
-                `;
-                container.insertBefore(setupWarning, container.firstChild.nextSibling);
-            });
-        }
     </script>
 </body>
 </html>
