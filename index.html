@@ -208,17 +208,17 @@
                 <label for="username">Your Username:</label>
                 <input type="text" id="username" placeholder="YourUsername123" disabled />
             </div>
+            
+            <div id="timerDisplay" style="display: none; margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px; text-align: center;">
+                ⏱️ Please wait <span id="countdown">60</span> seconds to ensure you've had time to search for a relevant thread.
+            </div>
         </div>
 
         <div class="step-section" id="step3Section">
             <h3>Step 3: Get Your Message</h3>
-            <p id="step3Instructions">Complete Steps 1 & 2, then wait for the search timer.</p>
             <button class="button" onclick="checkAndClaim()" id="claimButton" disabled>
                 🔍 Validate Thread & Get Message
             </button>
-            <div id="timerDisplay" style="display: none; margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px; text-align: center;">
-                ⏱️ Please wait <span id="countdown">60</span> seconds to ensure you've had time to search for a relevant thread.
-            </div>
         </div>
 
         <div id="resultSection" class="message-result">
