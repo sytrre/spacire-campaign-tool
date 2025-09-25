@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Campaign Tool</title>
+    <title>Spacire Campaign Tool</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -158,6 +158,7 @@
 <body>
     <div class="container">
         <h1>🎯 Spacire Campaign Tool</h1>
+        <p>Real-time conflict prevention across all users!</p>
 
         <!-- Setup Status -->
         <div id="connectionStatus" class="connection-status disconnected">
@@ -169,21 +170,38 @@
             Help spread awareness about Spacire's sleep wellness products by posting helpful, relevant comments!<br><br>
             
             <strong>📋 How it works:</strong><br>
-            1. Get your unique message and search keywords below<br>
-            2. Use the search keyword on major social media platforms to find popular discussion threads or videos with comments (Facebook, Instagram, Youtube, X, Reddit, Instagram, TikTok)<br>
-            3. Choose any random discussion threads/videos relating to the keyword<br>
+            1. Get your search keywords below<br>
+            2. Use the search keywords on major social media platforms to find popular discussion threads or videos with comments (Facebook, Instagram, Youtube, X, Reddit, TikTok)<br>
+            3. Come back here, enter the thread URL + your username to get your message<br>
             4. Post your helpful message to the thread!<br><br>
             
-            <strong>NB:</strong> This tool gives you a message to post only if the thread URL is unique.<br><br>
-            
-
+            <strong>NB:</strong> This tool gives you a message to post only if the thread URL is unique.
         </div>
 
         <div class="step-section">
-            <h3>Step 1 & 2: Thread Details</h3>
+            <h3>Step 1: Get Your Search Keywords</h3>
+            <p>First, get your search terms to find relevant threads on social media platforms:</p>
+            <button class="button" onclick="getSearchKeywords()" id="keywordButton">
+                🔍 Get Search Keywords
+            </button>
+            
+            <div id="keywordSection" style="display: none; margin-top: 20px;">
+                <div style="background: #e7f3ff; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #007bff;">
+                    <strong>🔍 Your Search Terms:</strong><br>
+                    <div id="keywordDisplay" style="margin-top: 8px;"></div>
+                    <small style="color: #666; margin-top: 10px; display: block;">
+                        <strong>Instructions:</strong> Copy any of these search terms → Search on major social media platforms → Find relevant threads or videos with comments → Come back here with the URL
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-section">
+            <h3>Step 2: Thread Details</h3>
+            <p>After finding a thread using your search keywords, enter the details below:</p>
             
             <div class="input-group">
-                <label for="threadUrl">Thread/Post URL:</label>
+                <label for="threadUrl">Thread/Post URL you found:</label>
                 <input type="url" id="threadUrl" placeholder="https://reddit.com/r/sleep/comments/..." />
             </div>
 
@@ -196,7 +214,7 @@
         <div class="step-section">
             <h3>Step 3: Get Your Message</h3>
             <button class="button" onclick="checkAndClaim()" id="claimButton">
-                🔍 Check Thread & Get Message
+                🔍 Validate Thread & Get Message
             </button>
         </div>
 
@@ -206,14 +224,6 @@
                 <span id="statusText">Checking thread availability...</span>
             </div>
             <div id="messageContent"></div>
-        </div>
-
-        <div class="step-section" style="margin-top: 30px;">
-            <h4>📊 Campaign Impact</h4>
-            <p>Total threads claimed: <span id="claimedCount">Loading...</span></p>
-            <p>Messages available: <span id="messageCount">225</span></p>
-            <p>Last sync: <span id="lastSync">Never</span></p>
-            <p style="color: #28a745; font-weight: bold;">🚀 More threads = More brand exposure!</p>
         </div>
     </div>
 
@@ -758,6 +768,20 @@
         // Main Functions
         // ========================================
 
+        // Get search keywords function (Step 1)
+        function getSearchKeywords() {
+            const keywords = getRandomKeywords();
+            
+            // Display keywords
+            const keywordDisplay = document.getElementById('keywordDisplay');
+            keywordDisplay.innerHTML = keywords.map(keyword => 
+                `<span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 12px;">${keyword}</span>`
+            ).join('');
+            
+            // Show the keyword section
+            document.getElementById('keywordSection').style.display = 'block';
+        }
+
         // Main function to check thread and assign message
         async function checkAndClaim() {
             if (!validateInputs()) return;
@@ -790,14 +814,12 @@
 
             // Claim thread and assign message
             const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-            const searchKeywords = getRandomKeywords();
             const timestamp = new Date().toLocaleString();
             
             claimedThreads.set(normalizedUrl, {
                 username: username,
                 timestamp: timestamp,
-                message: randomMessage,
-                keywords: searchKeywords
+                message: randomMessage
             });
 
             campaignStats.totalThreadsClaimed++;
@@ -816,7 +838,7 @@
             }
 
             // Show success
-            showResult('success', `✅ Thread claimed successfully! Keep spreading brand awareness! 🚀`, randomMessage, searchKeywords);
+            showResult('success', `✅ Thread claimed successfully! Keep spreading brand awareness! 🚀`, randomMessage);
             
             // Clear URL field but keep username for convenience
             document.getElementById('threadUrl').value = '';
@@ -825,7 +847,7 @@
         }
 
         // Show result message
-        function showResult(type, message, campaignMessage = null, keywords = null) {
+        function showResult(type, message, campaignMessage = null) {
             const resultSection = document.getElementById('resultSection');
             const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
@@ -835,19 +857,7 @@
             statusText.innerHTML = message;
 
             if (campaignMessage) {
-                const keywordsHtml = keywords ? 
-                    `<div style="background: #e7f3ff; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #007bff;">
-                        <strong>🔍 Search Terms (use any of these to find relevant threads):</strong><br>
-                        <div style="margin-top: 8px;">
-                            ${keywords.map(keyword => `<span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 12px;">${keyword}</span>`).join('')}
-                        </div>
-                        <small style="color: #666; margin-top: 10px; display: block;">
-                            <strong>Instructions:</strong> Copy one of these search terms → Search on any major social media platform (Facebook, Instagram, Youtube, X, Reddit, Instagram, TikTok ) → Find relevant threads or videos with comments → Post the message below
-                        </small>
-                    </div>` : '';
-
                 messageContent.innerHTML = `
-                    ${keywordsHtml}
                     <div class="message-box">${campaignMessage}</div>
                     <button class="copy-button" onclick="copyToClipboard('${campaignMessage.replace(/'/g, "\\'")}')">
                         📋 Copy Message
@@ -874,11 +884,10 @@
             });
         }
 
-        // Update stats display
+        // Update stats display (admin only - hidden from users)
         function updateStats() {
-            document.getElementById('claimedCount').textContent = campaignStats.totalThreadsClaimed;
-            document.getElementById('lastSync').textContent = lastSyncTime ? 
-                lastSyncTime.toLocaleTimeString() : 'Never';
+            // Stats removed from user interface
+            // Add back for admin panel if needed
         }
 
         // ========================================
