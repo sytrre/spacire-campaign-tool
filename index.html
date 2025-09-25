@@ -598,7 +598,11 @@
 
         // Check if Gist is properly configured
         function isGistConfigured() {
-            return CONFIG.GIST_ID && CONFIG.GIST_ID !== '{{SPACIRE_GIST_ID}}';
+            console.log('CONFIG check - GIST_ID:', CONFIG.GIST_ID);
+            console.log('CONFIG check - GITHUB_TOKEN:', CONFIG.GITHUB_TOKEN);
+            const isConfigured = CONFIG.GIST_ID && CONFIG.GIST_ID !== '{{SPACIRE_GIST_ID}}';
+            console.log('isGistConfigured result:', isConfigured);
+            return isConfigured;
         }
 
         // Load data from GitHub Gist
