@@ -600,7 +600,24 @@
         function isGistConfigured() {
             console.log('CONFIG check - GIST_ID:', CONFIG.GIST_ID);
             console.log('CONFIG check - GITHUB_TOKEN:', CONFIG.GITHUB_TOKEN);
-            const isConfigured = CONFIG.GIST_ID && CONFIG.GIST_ID !== '{{SPACIRE_GIST_ID}}';
+            
+            // More robust check - ensure we have actual values
+            const hasGistId = CONFIG.GIST_ID && 
+                CONFIG.GIST_ID.trim() && 
+                CONFIG.GIST_ID.trim() !== '{{SPACIRE_GIST_ID}}' &&
+                !CONFIG.GIST_ID.includes('{{') &&
+                !CONFIG.GIST_ID.includes('}}');
+                
+            const hasToken = CONFIG.GITHUB_TOKEN && 
+                CONFIG.GITHUB_TOKEN.trim() && 
+                CONFIG.GITHUB_TOKEN.trim() !== '{{SPACIRE_GITHUB_TOKEN}}' &&
+                !CONFIG.GITHUB_TOKEN.includes('{{') &&
+                !CONFIG.GITHUB_TOKEN.includes('}}');
+            
+            const isConfigured = hasGistId && hasToken;
+            
+            console.log('hasGistId:', hasGistId);
+            console.log('hasToken:', hasToken);
             console.log('isGistConfigured result:', isConfigured);
             return isConfigured;
         }
