@@ -170,7 +170,7 @@
             
             <strong>📋 How it works:</strong><br>
             1. Get your search keywords below<br>
-            2. Use the search keywords on major social media platforms to find popular discussion threads with comments (Facebook, Instagram, Youtube, X, Reddit, TikTok)<br>
+            2. Use the search keywords on major social media platforms to find popular discussion threads or videos with comments (Facebook, Instagram, Youtube, X, Reddit, TikTok)<br>
             3. Come back here, enter the thread URL + your username to get your message<br>
             4. Post your helpful message to the thread!<br><br>
             
@@ -189,7 +189,7 @@
                     <strong>🔍 Your Search Terms:</strong><br>
                     <div id="keywordDisplay" style="margin-top: 8px;"></div>
                     <small style="color: #666; margin-top: 10px; display: block;">
-                        <strong>Instructions:</strong> Copy any of these search terms → Search on major social media platforms → Find relevant threads with comments → Come back here with the URL
+                        <strong>Instructions:</strong> Copy any of these search terms → Search on major social media platforms → Find relevant threads or videos with comments → Come back here with the URL
                     </small>
                 </div>
             </div>
@@ -598,32 +598,10 @@
 
         // Check if Gist is properly configured
         function isGistConfigured() {
-            console.log('CONFIG check - GIST_ID:', CONFIG.GIST_ID);
-            console.log('CONFIG check - GITHUB_TOKEN:', CONFIG.GITHUB_TOKEN);
-            
-            // Debug each condition individually
-            console.log('GIST_ID exists:', !!CONFIG.GIST_ID);
-            console.log('GIST_ID trimmed:', !!CONFIG.GIST_ID?.trim());
-            console.log('GIST_ID not placeholder:', CONFIG.GIST_ID !== '{{SPACIRE_GIST_ID}}');
-            console.log('GIST_ID no {{ chars:', !CONFIG.GIST_ID?.includes('{{'));
-            console.log('GIST_ID no }} chars:', !CONFIG.GIST_ID?.includes('}}'));
-            
-            console.log('TOKEN exists:', !!CONFIG.GITHUB_TOKEN);
-            console.log('TOKEN trimmed:', !!CONFIG.GITHUB_TOKEN?.trim());
-            console.log('TOKEN not placeholder:', CONFIG.GITHUB_TOKEN !== '{{SPACIRE_GITHUB_TOKEN}}');
-            console.log('TOKEN no {{ chars:', !CONFIG.GITHUB_TOKEN?.includes('{{'));
-            console.log('TOKEN no }} chars:', !CONFIG.GITHUB_TOKEN?.includes('}}'));
-            
             // Simplified check - just verify we have actual values that aren't placeholders
             const hasGistId = CONFIG.GIST_ID && CONFIG.GIST_ID.length > 10;
             const hasToken = CONFIG.GITHUB_TOKEN && CONFIG.GITHUB_TOKEN.length > 10;
-            
-            const isConfigured = hasGistId && hasToken;
-            
-            console.log('hasGistId (simplified):', hasGistId);
-            console.log('hasToken (simplified):', hasToken);
-            console.log('isGistConfigured result:', isConfigured);
-            return isConfigured;
+            return hasGistId && hasToken;
         }
 
         // Load data from GitHub Gist
@@ -661,7 +639,7 @@
                 };
 
                 lastSyncTime = new Date();
-                updateConnectionStatus(true, 'Connected');
+                updateConnectionStatus(true, 'Connected to GitHub Gist');
                 updateStats();
                 
                 return true;
@@ -686,12 +664,15 @@
                 };
 
                 const headers = {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
                 };
 
-                if (CONFIG.GITHUB_TOKEN && CONFIG.GITHUB_TOKEN !== '{{SPACIRE_GITHUB_TOKEN}}') {
+                if (CONFIG.GITHUB_TOKEN && CONFIG.GITHUB_TOKEN.length > 10) {
                     headers['Authorization'] = `token ${CONFIG.GITHUB_TOKEN}`;
                 }
+
+                console.log('Attempting to save to Gist...');
 
                 const response = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
                     method: 'PATCH',
@@ -705,12 +686,44 @@
                     })
                 });
 
+                console.log('Gist save response status:', response.status);
+
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    const errorText = await response.text();
+                    console.error('Gist save failed:', response.status, errorText);
+                    
+                    // Try to create the Gist file if it doesn't exist (404 error)
+                    if (response.status === 404) {
+                        console.log('Gist not found, attempting to create file...');
+                        const createResponse = await fetch(`https://api.github.com/gists`, {
+                            method: 'POST',
+                            headers: headers,
+                            body: JSON.stringify({
+                                files: {
+                                    'spacire-threads.json': {
+                                        content: JSON.stringify(data, null, 2)
+                                    }
+                                },
+                                description: 'Spacire Campaign Thread Tracking',
+                                public: true
+                            })
+                        });
+                        
+                        if (createResponse.ok) {
+                            const newGist = await createResponse.json();
+                            console.log('Created new Gist:', newGist.id);
+                            lastSyncTime = new Date();
+                            updateStats();
+                            return true;
+                        }
+                    }
+                    
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
 
                 lastSyncTime = new Date();
                 updateStats();
+                console.log('Gist save successful');
                 return true;
             } catch (error) {
                 console.error('Failed to save to Gist:', error);
@@ -1085,21 +1098,26 @@
 
             campaignStats.totalThreadsClaimed++;
 
-            // Save to Gist
+            // Try to save to Gist with better error handling
             if (isGistConfigured()) {
-                showResult('checking', 'Saving your claim...');
+                showResult('checking', 'Saving your claim to sync with other users...');
                 const saveSuccess = await saveToGist();
+                
                 if (!saveSuccess) {
-                    showResult('warning', 
-                        '⚠️ Claimed locally but sync failed. Your claim may not be visible to other users immediately.'
+                    // Still show success but with sync warning
+                    showResult('success', 
+                        `✅ Thread claimed successfully! Your message is ready!<br><br>` +
+                        `⚠️ <small>Note: Sync with other users temporarily failed, but your claim is saved locally. This won't affect your ability to use the message.</small>`, 
+                        randomMessage
                     );
-                    document.getElementById('claimButton').disabled = false;
-                    return;
+                } else {
+                    // Full success with sync
+                    showResult('success', `✅ Thread claimed and synced successfully! Keep spreading brand awareness! 🚀`, randomMessage);
                 }
+            } else {
+                // No Gist configured, just show success
+                showResult('success', `✅ Thread claimed successfully! Your message is ready!`, randomMessage);
             }
-
-            // Show success
-            showResult('success', `✅ Thread claimed successfully! Keep spreading brand awareness! 🚀`, randomMessage);
             
             // Clear URL field but keep username for convenience
             document.getElementById('threadUrl').value = '';
