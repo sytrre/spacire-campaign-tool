@@ -715,10 +715,22 @@
             'nap', 'drowsy', 'awake', 'sleepy', 'restless', 'meditation', 'calm'
         ];
 
-        // Comprehensive URL normalization to handle platform-specific parameters
+        // Comprehensive URL normalization to catch all duplicate forms
         function normalizeUrl(url) {
             try {
-                const urlObj = new URL(url);
+                // First pass: basic cleanup
+                let workingUrl = url.trim();
+                
+                // Handle protocol variations (force https)
+                workingUrl = workingUrl.replace(/^http:\/\//i, 'https://');
+                if (!workingUrl.match(/^https?:\/\//i)) {
+                    workingUrl = 'https://' + workingUrl;
+                }
+                
+                const urlObj = new URL(workingUrl);
+                
+                // Remove fragments (hash sections) - these don't affect thread identity
+                urlObj.hash = '';
                 
                 // Comprehensive list of tracking/personalization parameters to remove
                 const parametersToRemove = [
@@ -734,7 +746,7 @@
                     'igshid', 'igsh', 'img_index',
                     
                     // YouTube
-                    'si', 'feature', 't', 'start', 'end', 'index', 'pp',
+                    'si', 'feature', 't', 'start', 'end', 'index', 'pp', 'list',
                     
                     // TikTok
                     'is_from_webapp', 'sender_device', 'sender_web_id', '_r', '_d',
@@ -765,43 +777,80 @@
                     urlObj.searchParams.delete(param);
                 });
                 
-                // Platform-specific URL cleaning
+                // Sort remaining parameters to handle different orders
+                const sortedParams = new URLSearchParams();
+                Array.from(urlObj.searchParams.entries())
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .forEach(([key, value]) => sortedParams.append(key, value));
+                urlObj.search = sortedParams.toString();
+                
                 let cleanUrl = urlObj.toString().toLowerCase();
                 
-                // Facebook: Remove mobile/desktop variations
-                cleanUrl = cleanUrl.replace(/m\.facebook\.com/g, 'facebook.com');
-                cleanUrl = cleanUrl.replace(/www\.facebook\.com/g, 'facebook.com');
-                cleanUrl = cleanUrl.replace(/mbasic\.facebook\.com/g, 'facebook.com');
+                // Remove default ports
+                cleanUrl = cleanUrl.replace(/:443(\/|$)/, '$1');
+                cleanUrl = cleanUrl.replace(/:80(\/|$)/, '$1');
                 
-                // Instagram: Normalize variations
-                cleanUrl = cleanUrl.replace(/www\.instagram\.com/g, 'instagram.com');
+                // Domain variations - normalize to canonical forms
+                cleanUrl = cleanUrl.replace(/^https:\/\/m\.facebook\.com/g, 'https://facebook.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/www\.facebook\.com/g, 'https://facebook.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/mbasic\.facebook\.com/g, 'https://facebook.com');
                 
-                // YouTube: Remove mobile variations
-                cleanUrl = cleanUrl.replace(/m\.youtube\.com/g, 'youtube.com');
-                cleanUrl = cleanUrl.replace(/youtu\.be\//g, 'youtube.com/watch?v=');
+                cleanUrl = cleanUrl.replace(/^https:\/\/www\.instagram\.com/g, 'https://instagram.com');
                 
-                // Reddit: Normalize old/new/mobile versions
-                cleanUrl = cleanUrl.replace(/old\.reddit\.com/g, 'reddit.com');
-                cleanUrl = cleanUrl.replace(/new\.reddit\.com/g, 'reddit.com');
-                cleanUrl = cleanUrl.replace(/m\.reddit\.com/g, 'reddit.com');
-                cleanUrl = cleanUrl.replace(/www\.reddit\.com/g, 'reddit.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/m\.youtube\.com/g, 'https://youtube.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/www\.youtube\.com/g, 'https://youtube.com');
                 
-                // TikTok: Remove regional domains
-                cleanUrl = cleanUrl.replace(/vm\.tiktok\.com/g, 'tiktok.com');
-                cleanUrl = cleanUrl.replace(/www\.tiktok\.com/g, 'tiktok.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/old\.reddit\.com/g, 'https://reddit.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/new\.reddit\.com/g, 'https://reddit.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/m\.reddit\.com/g, 'https://reddit.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/www\.reddit\.com/g, 'https://reddit.com');
                 
-                // Twitter/X: Normalize domain variations
-                cleanUrl = cleanUrl.replace(/mobile\.twitter\.com/g, 'twitter.com');
-                cleanUrl = cleanUrl.replace(/x\.com/g, 'twitter.com'); // Handle X rebrand
+                cleanUrl = cleanUrl.replace(/^https:\/\/vm\.tiktok\.com/g, 'https://tiktok.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/www\.tiktok\.com/g, 'https://tiktok.com');
                 
-                // Remove trailing slashes and normalize
+                cleanUrl = cleanUrl.replace(/^https:\/\/mobile\.twitter\.com/g, 'https://twitter.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/www\.twitter\.com/g, 'https://twitter.com');
+                cleanUrl = cleanUrl.replace(/^https:\/\/x\.com/g, 'https://twitter.com'); // Handle X rebrand
+                
+                // Platform-specific path normalization
+                
+                // YouTube: Convert different video formats to standard watch format
+                cleanUrl = cleanUrl.replace(/youtu\.be\/([a-zA-Z0-9_-]+)/g, 'youtube.com/watch?v=$1');
+                cleanUrl = cleanUrl.replace(/youtube\.com\/v\/([a-zA-Z0-9_-]+)/g, 'youtube.com/watch?v=$1');
+                cleanUrl = cleanUrl.replace(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/g, 'youtube.com/watch?v=$1');
+                
+                // Reddit: Normalize comment URLs (remove title slugs, normalize structure)
+                cleanUrl = cleanUrl.replace(/\/comments\/([a-z0-9]+)\/[^\/]*\/?/g, '/comments/$1/');
+                
+                // Instagram: Normalize post URLs (remove trailing slashes from paths)
+                cleanUrl = cleanUrl.replace(/instagram\.com\/(p|reel)\/([a-zA-Z0-9_-]+)\/?/g, 'instagram.com/$1/$2/');
+                
+                // Facebook: Normalize post URLs (handle different post formats)
+                cleanUrl = cleanUrl.replace(/facebook\.com\/[^\/]+\/posts\/([0-9]+)/g, 'facebook.com/posts/$1');
+                cleanUrl = cleanUrl.replace(/facebook\.com\/permalink\.php\?story_fbid=([0-9]+)/g, 'facebook.com/posts/$1');
+                
+                // TikTok: Normalize video URLs
+                cleanUrl = cleanUrl.replace(/tiktok\.com\/@[^\/]+\/video\/([0-9]+)/g, 'tiktok.com/video/$1');
+                
+                // General path cleanup
+                // Remove trailing slashes (but keep single slash for root)
                 cleanUrl = cleanUrl.replace(/\/+$/, '');
+                // Normalize multiple consecutive slashes
+                cleanUrl = cleanUrl.replace(/\/\/+/g, '/');
+                // Re-add the protocol slashes that got normalized
+                cleanUrl = cleanUrl.replace(/^https:\/([^\/])/, 'https://$1');
+                
+                // URL decode common encoded characters that could cause false differences
+                cleanUrl = decodeURIComponent(cleanUrl);
                 
                 return cleanUrl;
                 
             } catch (error) {
                 console.warn('URL normalization failed:', error);
-                return url.toLowerCase().trim();
+                // Fallback: at least do basic cleanup
+                return url.toLowerCase().trim()
+                    .replace(/^http:\/\//i, 'https://')
+                    .replace(/\/+$/, '');
             }
         }
 
