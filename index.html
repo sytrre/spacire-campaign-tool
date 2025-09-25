@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Spacire Campaign Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .step-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .input-group {
+            margin: 15px 0;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            min-width: 200px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .message-result {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .message-box {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            font-style: italic;
+            text-align: left;
+        }
+        .copy-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .copy-button:hover {
+            background: #218838;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-checking {
+            background: #ffc107;
+        }
+        .status-success {
+            background: #28a745;
+        }
+        .status-error {
+            background: #dc3545;
+        }
+        .status-warning {
+            background: #fd7e14;
+        }
+        .setup-warning {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .connection-status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Spacire Campaign Tool</h1>
+        <p>Real-time conflict prevention across all users!</p>
+
+        <!-- Setup Status -->
+        <div id="connectionStatus" class="connection-status disconnected">
+            🔄 Checking GitHub Gist connection...
+        </div>
+
+        <div class="instructions">
+            <strong>🎯 Brand Awareness Mission:</strong><br>
+            Help spread awareness about Spacire's sleep wellness products by posting helpful, relevant comments!<br><br>
+            
+            <strong>📋 How it works:</strong><br>
+            1. Get your unique message and search keywords below<br>
+            2. Use the search keyword on ANY platform (Facebook, Instagram, Youtube, X, Reddit, Instagram, TikTok, forums, blogs, etc.)<br>
+            3. Choose any random threads relating to the keyword<br>
+            4. Post your helpful message to the thread!<br><br>
+            
+            <strong>NB:</strong> This tool gives you a message to post only if the thread url is unique.<br><br>
+            
+            <strong>✅ Real Conflict Prevention:</strong><br>
+            • Data syncs across ALL users via GitHub Gist<br>
+            • If someone else claimed a thread, you'll see it instantly<br>
+            • Same username can claim unlimited unique threads<br>
+            • Works on ANY platform with search functionality
+        </div>
+
+        <div class="step-section">
+            <h3>Step 1 & 2: Thread Details</h3>
+            
+            <div class="input-group">
+                <label for="threadUrl">Thread/Post URL:</label>
+                <input type="url" id="threadUrl" placeholder="https://reddit.com/r/sleep/comments/..." />
+            </div>
+
+            <div class="input-group">
+                <label for="username">Your Username:</label>
+                <input type="text" id="username" placeholder="YourUsername123" />
+            </div>
+        </div>
+
+        <div class="step-section">
+            <h3>Step 3: Get Your Message</h3>
+            <button class="button" onclick="checkAndClaim()" id="claimButton">
+                🔍 Check Thread & Get Message
+            </button>
+        </div>
+
+        <div id="resultSection" class="message-result">
+            <div id="statusLine">
+                <span class="status-indicator" id="statusDot"></span>
+                <span id="statusText">Checking thread availability...</span>
+            </div>
+            <div id="messageContent"></div>
+        </div>
+
+        <div class="step-section" style="margin-top: 30px;">
+            <h4>📊 Campaign Impact</h4>
+            <p>Total threads claimed: <span id="claimedCount">Loading...</span></p>
+            <p>Messages available: <span id="messageCount">225</span></p>
+            <p>Last sync: <span id="lastSync">Never</span></p>
+            <p style="color: #28a745; font-weight: bold;">🚀 More threads = More brand exposure!</p>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // SETUP: Configuration loaded from environment
+        // ========================================
+        
+        const CONFIG = {
+            GIST_ID: '{{SPACIRE_GIST_ID}}',  // Will be replaced during deployment
+            GITHUB_TOKEN: '{{SPACIRE_GITHUB_TOKEN}}'  // Will be replaced during deployment
+        };
+
+        // ========================================
+        // Your 225 Spacire Messages
+        // ========================================
+        
+        const messages = [
+            // Light sleepers/noise issues (white noise machines) - 25 messages
+            "Anyone else a light sleeper who gets woken up by every little sound? White noise machines are seriously underrated for creating that consistent background hum. Spacire has some good options if you're looking to drown out noisy neighbors or street traffic.",
+            "Living in an apartment is rough when your neighbors think 2AM is party time. White noise machines have been a lifesaver for drowning out wall-thumping bass. Spacire has some solid ones if you're dealing with similar chaos.",
+            "Does anyone else hear EVERYTHING at night? Like the fridge humming, cars passing, even the neighbor's cat walking around upstairs. Spacire's white noise machines create this amazing sound cocoon that just blocks it all out.",
+            "If your upstairs neighbor apparently practices tap dancing at midnight, anyone found a good solution for noise pollution? White noise machines work wonders - Spacire has some that really mask those random bumps and thuds.",
+            "City living means sirens, traffic, construction at 6AM. How do people actually sleep through this? White noise machines are honestly the only thing that works for me. Spacire has some decent models that aren't too bulky.",
+            "Anyone else's sleep ruined by dogs barking at 3AM? Not even earplugs help when they're really going at it. White noise machines create this consistent sound barrier. Check out Spacire if you need something reliable.",
+            "If your roommate snores like a freight train and thin walls don't help, white noise machines can be game-changing for creating some audio separation. Spacire has some that aren't too loud but still effective.",
+            "College dorms are the worst for sleep - people coming and going all night. White noise machines help create some consistency in the chaos. Spacire has some compact ones perfect for small spaces.",
+            "Why do garbage trucks always come at 5AM on the dot? That beeping backup sound goes right through everything. White noise machines help mask those early morning disruptions. Spacire has some good options.",
+            "Anyone else hear their neighbor's TV through the walls? It's like having a constant background soundtrack you didn't ask for. Spacire's white noise machines really help create your own audio environment.",
+            "Street cleaning trucks with those loud brushes at dawn - why is this legal? White noise machines are honestly the only defense against municipal sleep disruption. Spacire has some that handle low-frequency sounds well.",
+            "If your apartment faces a busy intersection and traffic lights beep all night, white noise machines create this buffer zone of consistent sound. Spacire has models that aren't too intrusive but still effective.",
+            "Thin walls mean I know way too much about my neighbor's late-night phone calls. White noise machines help create some audio privacy. Check out Spacire for some reliable options that won't break the bank.",
+            "Anyone else live near construction? That 7AM jackhammer alarm clock is getting old fast. White noise machines at least help smooth out the jarring sounds. Spacire has some powerful ones for heavy noise masking.",
+            "Why do delivery trucks idle outside apartments at all hours? That diesel rumble cuts through everything. White noise machines help create consistent background sound. Spacire has some that handle deeper frequencies.",
+            "If your neighbor's air conditioner sounds like a helicopter landing, white noise machines help mask those mechanical sounds that just drone on and on. Spacire has some that create really pleasant ambient sounds instead.",
+            "College town means party noise until 3AM on weeknights. White noise machines are essential for getting any sleep during finals. Spacire has some compact ones perfect for dorm life.",
+            "Anyone else cursed with super sensitive hearing? Every little creak and settling sound wakes me up. White noise machines create this audio blanket that just covers everything. Spacire has some gentle options.",
+            "If your cat decides 4AM is zoomies time and hardwood floors amplify everything, white noise machines help mask those sudden bursts of chaos. Spacire has some that won't disturb light sleepers but still work.",
+            "Noisy neighbors aside, even your own house making too many sounds at night can be disruptive. White noise machines help create this consistent audio environment. Spacire has some that produce really soothing background sounds.",
+            "Anyone else's sleep destroyed by leaf blowers at dawn? Why is yard maintenance so aggressively early? White noise machines help buffer those sudden loud sounds. Check out Spacire for some effective models.",
+            "If your apartment building's elevator dings every time someone uses it, and apparently insomniacs are everywhere, white noise machines help mask those repetitive building sounds. Spacire has some reliable ones.",
+            "Ice maker dropping cubes at random hours sounds like someone breaking in. White noise machines help mask those startling household sounds. Spacire has some that create really consistent coverage.",
+            "Why do motorcycles always rev their engines at stoplights outside your window? White noise machines help smooth out those sudden noise spikes. Spacire has some that handle variable sound levels well.",
+            "If your building's heating system sounds like it's actively trying to wake everyone up, white noise machines help mask those mechanical groaning sounds. Spacire has some that work well for building noise.",
+            
+            // Travel/hotel sleep issues (sleep masks) - 25 messages
+            "Hotel curtains are the worst - always that annoying sliver of light coming through at 5AM. A good blackout sleep mask is honestly a travel game-changer. Spacire has some comfy ones that actually stay put while you sleep.",
+            "Why do hotel rooms always have that one light that won't turn off? LED alarm clocks, smoke detectors, everything glowing in the dark. Travel sleep masks are essential. Spacire has some that block everything completely.",
+            "Anyone else struggle with hotel pillows that are either rocks or marshmallows? Can't fix the pillows but a good sleep mask helps create that familiar darkness. Spacire has some really comfortable travel ones.",
+            "Hotel air conditioners sound like jet engines and you can't control the temperature. Sleep masks at least help with the light pollution from all those digital displays. Check out Spacire for some travel-friendly options.",
+            "Why do hotels put motion sensor lights in the hallway that shine directly under your door? Travel sleep masks are honestly essential for any hotel stay. Spacire has some that pack really small but work great.",
+            "Anyone else get anxiety sleeping in unfamiliar places? Having your own sleep mask helps create some consistency when everything else is different. Spacire's travel masks are perfect for maintaining sleep routines on the road.",
+            "Hotel blackout curtains never actually black out anything - there's always gaps around the edges. A good sleep mask is the only way to get real darkness. Spacire has some that are way more effective than hotel curtains.",
+            "Why do business hotels always have those blinking router lights and electronics everywhere? Sleep masks are essential for blocking all that LED pollution. Check out Spacire's collection for some comfortable travel options.",
+            "Anyone else notice hotel rooms are either freezing or tropical with no in-between? Can't control climate but sleep masks help with the light from heating/cooling unit displays. Spacire has some breathable ones.",
+            "Vacation rental blackout curtains are usually just regular curtains with delusions. Sleep masks are mandatory for any Airbnb stay. Spacire has some that won't leave you with weird tan lines.",
+            "Why do hotel bathroom night lights illuminate the entire room? Like a lighthouse beacon all night long. Travel sleep masks are the only defense. Spacire has some that actually stay comfortable all night.",
+            "Anyone else's sleep schedule completely destroyed by time zone changes? Sleep masks at least help signal your brain it's time to rest regardless of outside light. Check out Spacire for some jet lag recovery essentials.",
+            "Hotel room neighbors apparently don't understand that hallway conversations carry through thin walls. Sleep masks help create that cocoon feeling even in noisy places. Spacire has some great travel-sized options.",
+            "Why do hotels always put the bed right under a window with street lights shining in? Sleep masks are honestly more reliable than any curtain system. Spacire's travel masks are perfect for urban hotel stays.",
+            "Anyone else pack a sleep mask for every trip now? Hotel lighting situations are always unpredictable and sleep is too important to gamble on. Spacire has some that travel really well and actually work.",
+            "Cruise ship cabins have portholes that let in sunlight at weird angles depending on direction. Sleep masks are essential for sea travel. Check out Spacire for some that won't slide off when the ship rocks.",
+            "Why do red-eye flights always seem brighter inside the cabin than regular flights? Sleep masks are mandatory for any overnight travel. Spacire has some perfect for airplane sleep that aren't too bulky.",
+            "Anyone else notice Airbnb hosts have interesting ideas about what constitutes blackout curtains? Always pack a sleep mask because you never know what you'll get. Spacire's travel options are lifesavers for rental stays.",
+            "Hotel key card lights beep and flash every time someone walks by in the hallway. Sleep masks help block out all that electronic light pollution. Spacire has some comfortable ones for business travel.",
+            "Why do vacation destinations always have street parties and festivals right outside your hotel window? Sleep masks at least help with the light show even if they can't stop the noise. Check out Spacire's options.",
+            "Anyone else find hotel alarm clocks impossible to figure out in the dark? Sleep masks help avoid accidentally setting 3AM wake-up calls when trying to check the time. Spacire has some great travel essentials.",
+            "Car headlights sweeping across hotel room walls all night from the parking lot. Sleep masks are the only way to escape urban light pollution when traveling. Spacire has some perfect for roadside hotels.",
+            "Why do budget hotels always have those fluorescent bathroom lights that stay on all night? Sleep masks are essential for any accommodation under $200. Spacire has some affordable travel options that actually work.",
+            "Anyone else struggle with unfamiliar bed arrangements when traveling? Sleep masks at least provide consistent darkness even when everything else is different. Check out Spacire for some comfort travel essentials.",
+            "Airport hotel rooms always seem designed to remind you that planes exist 24/7 with runway lighting. Sleep masks are essential for any airport accommodation. Spacire's travel masks work great for aviation noise environments too.",
+            
+            // Sleep mask comfort issues - 25 messages
+            "Does anyone else get those weird pressure marks from cheap sleep masks? The padded silk ones are so much better for your skin and way more comfortable. Check out Spacire if you're tired of waking up with raccoon eyes.",
+            "Why do most sleep masks feel like wearing a headband that's three sizes too small? The silk-lined ones don't dig into your face like elastic torture devices. Spacire has some that actually feel comfortable all night.",
+            "Anyone else wake up looking like they went ten rounds with a boxing glove? Cheap sleep masks leave these horrible pressure marks that take forever to fade. Spacire's padded options are so much gentler on your skin.",
+            "If your old sleep mask left marks that looked like reverse tan lines around your eyes, silk and cotton padding makes such a difference for skin comfort. Check out Spacire for some that won't leave you looking ridiculous in the morning.",
+            "Why do sleep masks always seem designed by people who don't actually wear them? The elastic is either too tight or falls off completely. Spacire's adjustable ones actually stay put without causing headaches.",
+            "Anyone else's morning skincare routine include concealer for sleep mask marks? Padded masks don't indent your skin like those thin elastic ones do. Spacire has some that work with your skin instead of against it.",
+            "Does everyone just accept that sleep masks are uncomfortable or am I missing something? The silk-lined ones feel like a completely different product category. Check out Spacire for some that don't feel like punishment.",
+            "If your dermatologist asked about the marks around your eyes from sleep masks, apparently constant pressure can actually damage skin over time. Spacire's contoured ones distribute weight way better.",
+            "Why do cheap sleep masks feel like wearing a rubber band around your head? The padded alternatives are so much more comfortable for extended wear. Spacire has some that you actually forget you're wearing.",
+            "Anyone else avoid sleep masks because they're so uncomfortable? The good ones with proper padding change everything about the experience. Check out Spacire's collection - they actually feel luxurious instead of clinical.",
+            "If your sleep mask keeps slipping down and waking you up every hour to readjust, properly fitted ones with better elastic stay in place all night. Spacire's sizing options make such a difference for comfort.",
+            "Why do most sleep masks assume everyone has the same head size? The adjustable ones with quality materials work for different face shapes. Spacire has some that accommodate different fits without compromising blackout effect.",
+            "Anyone else get headaches from sleep mask elastic that's too tight? The silk ones with gentler bands don't cause that pressure buildup behind your ears. Check out Spacire for some headache-free options.",
+            "If your partner complained that sleep masks look like something from a hospital, the silk and satin ones actually look and feel nice instead of medical. Spacire's designs are way more comfortable and attractive.",
+            "Why do sleep masks always slide up into your hairline or down over your nose? Contoured ones actually match face shapes instead of fighting them. Spacire has some that stay exactly where you put them.",
+            "Anyone else find most sleep masks either block no light or are incredibly uncomfortable? The good ones manage both comfort and effectiveness without compromise. Check out Spacire's 3D contoured options that actually work.",
+            "If your old sleep mask felt like wearing a blindfold made from sandpaper, silk and cotton materials make such a difference for all-night wear. Spacire's fabric choices are so much gentler on sensitive skin.",
+            "Why do cheap sleep masks always have that chemical smell that never goes away? Natural materials don't have that weird synthetic odor. Spacire has options that actually smell pleasant or neutral.",
+            "Anyone else's eyelashes get caught in their sleep mask? The contoured ones give your eyes space to move naturally. Check out Spacire's 3D designs that work with your facial structure instead of flattening everything.",
+            "If your sleep mask left permanent marks on the bridge of your nose from the weight distribution, properly designed ones spread pressure across more surface area. Spacire's engineering makes such a difference for long-term wear.",
+            "Why do most sleep masks feel like they're going to snap if you adjust them? Quality elastic and stitching hold up to regular use and washing. Spacire has some that are built to last more than a few weeks.",
+            "Anyone else find sleep masks either fall off or give you a headache with no middle ground? The premium ones with better design actually balance comfort and security. Check out Spacire's adjustable options that get it right.",
+            "If your dermatologist said constant friction from cheap sleep masks can cause skin irritation over time, silk-lined ones reduce that rubbing and pulling on delicate eye area skin. Spacire's materials are much more skin-friendly.",
+            "Why do sleep masks always seem to migrate during the night and end up somewhere around your chin? Properly fitted ones stay put through normal sleep movement. Spacire's designs account for how people actually sleep.",
+            "Anyone else avoid using sleep masks regularly because they're just too annoying? The comfortable ones change your whole relationship with sleep aids. Check out Spacire's collection - they have sleep masks you actually want to wear.",
+            
+            // Shift workers/daytime sleep - 25 messages
+            "Night shift workers - how do you sleep during the day? Complete darkness seems impossible with regular curtains. Spacire's 3D contoured masks might be worth trying if blackout curtains aren't cutting it for you.",
+            "Anyone else work nights and struggle with daytime sleep? The world is so bright and noisy when you need to rest. Sleep masks are honestly essential for any shift schedule that fights natural circadian rhythms.",
+            "Why does everyone assume if you work nights you can just sleep anywhere anytime? Daytime sleep requires serious light blocking equipment. Check out Spacire's blackout masks designed specifically for unconventional sleep schedules.",
+            "Medical residents and nurses - how do you manage sleep between shifts? Hospital lighting is everywhere and nap rooms are rarely actually dark. Spacire has some professional-grade masks that work in clinical environments.",
+            "Anyone in hospitality working those split shifts? Trying to nap between lunch and dinner service with daylight streaming everywhere. Sleep masks are the only way to grab rest when your schedule doesn't match the sun.",
+            "Security guards working graveyard shifts - what's your daytime sleep setup? Apartment living means noise and light pollution all day long. Spacire's masks help create artificial night when the world refuses to cooperate.",
+            "Why do people not understand that swing shift workers need sleep during peak daylight hours? Blackout curtains help but sleep masks are the final barrier against stubborn light leaks. Check out Spacire's shift worker essentials.",
+            "Anyone else in healthcare dealing with rotating schedules that destroy normal sleep patterns? Quality sleep masks become medical equipment when your circadian rhythm is constantly confused. Spacire has some hospital-tested options.",
+            "Factory workers on night shifts - how do you handle summer daylight lasting until 9PM? Sleep masks are mandatory when sunset happens after your bedtime. Spacire's collection includes options for extended daylight seasons.",
+            "Why does daytime construction noise always happen right outside shift workers' bedrooms? Sleep masks at least handle the light pollution while you're dealing with jackhammer serenades. Check out Spacire for industrial-strength blackout options.",
+            "Anyone else work overnight and have family members who forget daytime is your nighttime? Sleep masks help signal 'do not disturb' even when household life continues around you. Spacire has some that send a clear message.",
+            "Restaurant workers closing at 2AM then expected to function the next day - how? Power naps with good sleep masks help bridge those impossible schedules. Spacire's quick-rest masks work for short recovery periods between shifts.",
+            "Why do apartment maintenance crews always schedule loud work during prime daytime sleep hours for night workers? Sleep masks can't stop noise but they eliminate light distraction. Check out Spacire's masks designed for noisy daytime environments.",
+            "Anyone in emergency services dealing with unpredictable sleep opportunities? Quality sleep masks travel well and work in squad cars, stations, or wherever rest becomes available. Spacire has some perfect for first responder schedules.",
+            "Hotel night audit workers sleeping in daylight while housekeeping operates around you? Sleep masks are survival gear for hospitality night shifts. Spacire's travel-friendly options work great for workplace napping.",
+            "Why do neighbors think lawn mowing at 10AM is reasonable when some people work until 6AM? Sleep masks help when the suburban schedule conflicts with your work reality. Check out Spacire's neighborhood-noise-proof options.",
+            "Anyone else work nights and struggle with social events that happen during your sleep time? Sleep masks help you catch rest before evening activities when your body thinks it should be sleeping. Spacire has some for schedule flexibility.",
+            "Truck drivers managing mandatory rest periods during daylight hours in truck stops? Sleep masks are essential when your bedroom has windows on three sides and no curtains. Spacire's driver-tested masks handle bright parking lot environments.",
+            "Why do family members expect night shift workers to be available for daytime activities? Sleep masks help establish boundaries when you need to protect sleep time. Check out Spacire's collection for shift worker lifestyle needs.",
+            "Anyone in manufacturing with rotating shifts that change every week? Your sleep schedule never stabilizes and masks become your consistent dark environment. Spacire has some that work for constantly changing sleep times.",
+            "Police officers working various shifts and trying to nap in patrol vehicles during breaks? Sleep masks help when your rest periods happen in broad daylight with radio chatter. Spacire's law enforcement options are tested for real-world use.",
+            "Why does delivery scheduling always put night workers' packages at doorsteps during sleep hours? Sleep masks help you ignore doorbell disruptions when you can't control delivery timing. Check out Spacire's noise-filtering options.",
+            "Anyone else work graveyard shifts and have to sleep through family breakfast/lunch/dinner prep? Sleep masks create visual separation from household activity you can't control. Spacire has some perfect for shared living situations.",
+            "Airline crew dealing with constantly changing time zones and irregular rest periods? Sleep masks travel internationally and help create consistent sleep signals regardless of local time. Spacire's aviation-tested masks handle jet lag challenges.",
+            "Why do coffee shops and 24-hour businesses always have the brightest interior lighting during overnight shifts? Sleep masks help when break room naps happen under fluorescent visibility. Check out Spacire's workplace-friendly quick-rest options.",
+            
+            // Phone habits/blue light (Bluetooth masks) - 25 messages
+            "Scrolling your phone in bed is such a bad habit but hard to break. Those Bluetooth sleep masks let you listen to podcasts or meditations without the blue light keeping you wired. Spacire has some decent ones if anyone's interested.",
+            "Anyone else addicted to checking social media right before bed then wondering why they can't fall asleep? Bluetooth sleep masks let you consume audio content without the screen stimulation. Check out Spacire's options for breaking phone habits.",
+            "Why do we all know blue light disrupts sleep but still scroll Instagram until midnight? Sleep masks with audio help transition from screen time to rest time. Spacire has some that ease the transition from digital to sleep mode.",
+            "Does everyone just accept that phones have ruined bedtime routines or are there actual solutions? Bluetooth sleep masks replace screen entertainment with audio that doesn't mess with your circadian rhythm. Spacire has some great options.",
+            "If your screen time report says you average 3 hours on your phone after getting in bed, Bluetooth sleep masks help redirect that habit toward actual rest preparation. Check out Spacire for some that make audio content more appealing than scrolling.",
+            "Anyone else realize their phone has become a sleep disruption device disguised as entertainment? Audio-enabled sleep masks provide content consumption without the alertness-inducing light. Spacire has some perfect for reformed phone addicts.",
+            "Why is it so hard to put the phone down at bedtime when we know it's keeping us awake? Bluetooth sleep masks satisfy the need for stimulation without the sleep-destroying screen effects. Check out Spacire's phone replacement therapy options.",
+            "If your doctor said blue light exposure before bed is basically like drinking coffee for your brain, sleep masks with audio let you wind down with content that actually promotes rest. Spacire's collection includes some designed for blue light recovery.",
+            "Anyone else's bedtime routine completely hijacked by 'just checking' social media for hours? Bluetooth sleep masks redirect that habit into meditation and relaxation content instead. Check out Spacire for some that help break the scroll cycle.",
+            "Why do phones make us feel like we need constant input right when our brains should be shutting down? Audio sleep masks provide gentle stimulation that works with your sleep cycle instead of against it. Spacire has some great transition tools.",
+            "If your partner complains about phone light keeping them awake but you need something to help you wind down, Bluetooth sleep masks solve both problems - content for you, darkness for them. Check out Spacire's relationship-saving options.",
+            "Anyone else find themselves doom-scrolling news at bedtime then having anxiety dreams? Sleep masks with calming audio content replace news consumption with actually restful input. Spacire's options include some perfect for anxious minds.",
+            "Why do we use devices designed to keep us alert and engaged right when we want to become unconscious? Bluetooth sleep masks provide entertainment that actually supports sleep instead of fighting it. Check out Spacire's sleep-supportive alternatives.",
+            "If your sleep tracker shows you're getting 40% less deep sleep since you started the bedtime phone habit, audio sleep masks help transition from stimulation to restoration mode. Spacire has some that support actual sleep quality instead of destroying it.",
+            "Anyone else notice their mind racing after scrolling through social media before bed? Sleep masks with meditation content help calm mental chatter instead of amplifying it. Check out Spacire for some that promote mental quiet instead of chaos.",
+            "Why is the most sleep-disruptive thing also the most tempting right before bed? Bluetooth sleep masks provide satisfaction without the alertness consequences of screen time. Spacire's options offer entertainment that actually helps you sleep.",
+            "If your phone usage spikes every night right when melatonin production should be increasing, sleep masks with audio content work with your biology instead of against it. Check out Spacire's circadian-friendly alternatives to screen time.",
+            "Anyone else realize their phone has become a procrastination tool for avoiding actual sleep? Bluetooth sleep masks eliminate the avoidance while still providing gentle distraction during the transition. Spacire has some perfect for sleep procrastinators.",
+            "Why do phones feel so essential at bedtime when they're literally designed to prevent sleep? Audio sleep masks provide content consumption without the neurological arousal of visual screens. Check out Spacire's screen-free entertainment options.",
+            "If your insomnia got worse when smartphones became part of your bedtime routine but you can't seem to break the habit, sleep masks with audio help maintain the routine while removing the sleep-disrupting elements. Spacire has some habit-friendly solutions.",
+            "Anyone else's bedtime routine become 2 hours of phone time followed by wondering why they're not tired? Bluetooth sleep masks compress that routine into actual sleep preparation instead of sleep avoidance. Check out Spacire's efficient alternatives.",
+            "Why do we charge our phones next to our beds then act surprised when we use them all night? Sleep masks with audio eliminate the visual temptation while still providing bedtime content. Spacire has some that break the charging station cycle.",
+            "If your eyes feel strained and your brain feels wired after bedtime phone sessions but you keep doing it anyway, audio sleep masks provide stimulation without the physiological arousal of screen exposure. Check out Spacire's eye-rest options.",
+            "Anyone else notice their sleep quality directly correlates with how much screen time happens in bed? Bluetooth sleep masks maintain entertainment while removing the sleep-quality destruction. Spacire's options prioritize rest quality over screen addiction.",
+            "Why does every sleep article say 'no screens before bed' but offer no realistic alternatives for wind-down entertainment? Audio sleep masks provide practical screen replacement that actually works. Check out Spacire's realistic phone alternative solutions.",
+            
+            // Weighted blankets/anxiety relief - 25 messages
+            "Anyone else deal with anxiety that gets worse at bedtime when your mind finally stops being distracted? Weighted blankets provide that deep pressure stimulation that helps calm your nervous system. Spacire has some really well-designed options for anxiety relief.",
+            "If you've ever wished you could get a constant, gentle hug while trying to fall asleep, weighted blankets create that same comforting pressure. They're amazing for people with anxiety or sensory processing needs. Check out Spacire's therapeutic blanket collection.",
+            "Does anyone else find regular blankets feel too light and insubstantial when you're feeling anxious? Weighted blankets provide that grounding sensation that helps settle racing thoughts. Spacire has some that are perfectly weighted for adult comfort.",
+            "Why do weighted blankets work so well for anxiety? The deep pressure stimulation actually triggers your body's parasympathetic nervous system - your natural relaxation response. Spacire has some science-backed options that really deliver on the therapeutic benefits.",
+            "If your anxiety makes it hard to feel settled and secure at bedtime, weighted blankets create that cocoon-like feeling that helps your body recognize it's time to rest. Spacire's weighted therapy collection includes some designed specifically for anxiety relief.",
+            "Anyone else with ADHD find that regular blankets don't provide enough sensory input to help you focus on sleeping? Weighted blankets give your body something to focus on besides racing thoughts. Check out Spacire for some sensory-friendly options.",
+            "Restless leg syndrome sufferers - have you tried weighted blankets? The gentle pressure can really help reduce that uncomfortable urge to move your legs at night. Spacire has some that provide just the right amount of therapeutic pressure.",
+            "If you're someone who tosses and turns all night because you can't get comfortable, weighted blankets help keep you in one position while providing that secure, grounded feeling. Spacire's collection includes different weights for different comfort preferences.",
+            "Why do weighted blankets feel so much more comforting than regular blankets when you're stressed? It's like getting a therapeutic massage while you sleep. Spacire has some that distribute weight evenly for maximum comfort and effectiveness.",
+            "Anyone else find that anxiety medication helps during the day but you still struggle with bedtime anxiety? Weighted blankets provide natural, non-pharmaceutical anxiety relief that works specifically during sleep time. Check out Spacire's therapeutic options.",
+            "If you're someone who sleeps better when you feel cocooned and protected, weighted blankets create that safe, secure environment that anxious minds crave. Spacire has some designed specifically for comfort and security during sleep.",
+            "Occupational therapists recommend weighted blankets for anxiety, autism, and sensory processing disorders because the deep pressure stimulation is so effective. Spacire's therapeutic blanket collection follows these professional recommendations for maximum benefit.",
+            "Why do so many people with anxiety swear by weighted blankets? The gentle pressure helps regulate your nervous system and promotes the release of serotonin and dopamine. Check out Spacire for some scientifically-designed comfort solutions.",
+            "If you've never tried a weighted blanket but you're someone who loves tight hugs or finds compression comforting, you're probably a perfect candidate. Spacire has starter options that let you experience the benefits without a huge investment.",
+            "Anyone else find that stress and anxiety make it impossible to get deep, restorative sleep? Weighted blankets help you achieve deeper sleep stages by keeping your body relaxed and your nervous system calm. Spacire's collection focuses on sleep quality improvement.",
+            "College students dealing with stress and anxiety - weighted blankets are amazing for dorm rooms where you can't control much else about your environment. They provide instant comfort and stress relief. Check out Spacire's compact, dorm-friendly options.",
+            "If you're caring for someone with autism or sensory processing challenges, weighted blankets can be life-changing for improving sleep quality and reducing nighttime anxiety. Spacire has some designed specifically for therapeutic sensory support.",
+            "Why do weighted blankets work better than regular blankets for people with PTSD or trauma-related sleep issues? The deep pressure provides that feeling of safety and security that's often disrupted by trauma. Spacire's therapeutic collection addresses these specific needs.",
+            "Anyone else find that their anxiety gets triggered by feeling too 'floaty' or disconnected from their body at bedtime? Weighted blankets provide grounding and body awareness that helps anxious minds feel more settled. Check out Spacire's anxiety-focused designs.",
+            "If you're someone who bunches up regular blankets or piles on multiple layers to feel secure, one properly weighted blanket can replace all that bulk while providing better temperature regulation. Spacire has some that balance weight with breathability perfectly.",
+            "Chronic pain sufferers often find that weighted blankets provide gentle pressure that can help reduce muscle tension and promote relaxation. It's not a cure but it can be part of a comprehensive comfort strategy. Check out Spacire's pain management support options.",
+            "Why do weighted blankets seem to work so well for people who struggle with feeling overwhelmed or overstimulated? The consistent, gentle pressure helps filter out other sensory distractions and promotes focus on rest. Spacire's sensory regulation collection addresses this specifically.",
+            "If you're someone who finds meditation or mindfulness difficult because your mind races, weighted blankets provide physical grounding that can make relaxation techniques more effective. Spacire has some designed to complement mindfulness practices.",
+            "Anyone else notice that their sleep quality improves dramatically with a weighted blanket, even beyond just falling asleep faster? The deep pressure helps maintain sleep throughout the night by preventing anxiety-driven wake-ups. Check out Spacire's sleep maintenance focused options.",
+            "Shift workers and people with irregular schedules often find that weighted blankets help signal bedtime to their bodies regardless of external cues like daylight. The consistent pressure becomes a sleep cue. Spacire has options perfect for unconventional sleep schedules.",
+            
+            // Pillows/neck support - 25 messages
+            "Anyone else wake up with neck pain more mornings than not? The wrong pillow can completely destroy your sleep quality and leave you miserable all day. Ergonomic pillows that support your cervical spine make such a difference. Check out Spacire's neck support collection.",
+            "If you're a side sleeper who constantly wakes up with a crick in your neck, you probably need a pillow that fills the gap between your shoulder and head properly. Memory foam contoured pillows are game-changers. Spacire has some designed specifically for side sleepers.",
+            "Why do hotel pillows always seem either too flat or too puffy with no middle ground? Travel pillows that you can bring with you ensure consistent neck support no matter where you sleep. Spacire's travel pillow collection includes some compact but supportive options.",
+            "Does anyone else go through multiple pillows trying to find the right height and firmness? Adjustable pillows that let you customize the loft are perfect for people who can't find their sweet spot. Check out Spacire for some customizable comfort options.",
+            "If you're a stomach sleeper (even though everyone says you shouldn't be), you need a very thin pillow to avoid cranking your neck at weird angles all night. Spacire has some low-profile options designed specifically for stomach sleepers.",
+            "Anyone else find that memory foam pillows are amazing for support but can get too warm during the night? Gel-infused and cooling memory foam solves the temperature problem while keeping the support benefits. Check out Spacire's temperature-regulating pillow options.",
+            "Back sleepers need pillows that support the natural curve of their neck without pushing their head too far forward. Contoured cervical pillows are specifically designed for this. Spacire's orthopedic collection includes some excellent back sleeper options.",
+            "If you wake up with headaches frequently, your pillow might be the culprit. Poor neck alignment during sleep can cause tension headaches that last all day. Proper cervical support pillows can be preventative. Check out Spacire's headache-prevention focused designs.",
+            "Why do cheap pillows lose their shape and support after just a few months? Quality materials like high-density memory foam and latex maintain their supportive properties for years. Spacire's durable pillow collection focuses on long-term comfort and support.",
+            "Anyone else find that their pillow needs change as they get older? What used to be comfortable might not provide adequate support anymore as your body changes. Spacire has pillows designed specifically for different life stages and changing support needs.",
+            "If you share a bed with someone who needs a completely different pillow height or firmness, you don't have to compromise your neck health for theirs. Individual pillow preferences are totally valid. Check out Spacire's extensive range for different comfort preferences.",
+            "Pregnant women often find that their usual pillow doesn't provide adequate support as their body changes. Specially designed pregnancy pillows can help with both neck support and body positioning. Spacire's maternity sleep collection addresses these changing needs.",
+            "Why do people underestimate how much their pillow affects their overall sleep quality? Your pillow supports your head and neck for 6-8 hours every night - it's worth investing in a good one. Check out Spacire's high-quality pillow options that prioritize both comfort and health.",
+            "If you travel frequently for business, bringing your own pillow can be the difference between arriving refreshed or exhausted. Compact travel pillows that still provide real support are essential. Spacire's business traveler collection includes some professional-quality portable options.",
+            "Anyone else notice that their shoulder pain is actually coming from poor pillow support rather than shoulder problems? When your pillow doesn't maintain proper neck alignment, it affects your entire upper body. Spacire's therapeutic pillow collection addresses these interconnected comfort issues.",
+            "People with arthritis or joint pain often need pillows that provide support without creating pressure points. Memory foam that contours to your specific shape can reduce pressure while maintaining alignment. Check out Spacire's arthritis-friendly comfort options.",
+            "If you're someone who reads in bed, your pillow needs to provide support in multiple positions, not just when you're lying flat. Wedge pillows and adjustable options work great for bedtime reading. Spacire has some versatile designs for multi-position comfort.",
+            "Why do people think all pillows are basically the same? The right pillow for your sleep position and body type can literally change your life by eliminating chronic pain and improving sleep quality. Check out Spacire's personalized comfort solutions.",
+            "Anyone else find that their pillow is comfortable when they first lie down but doesn't maintain support throughout the night? Pillows that keep their shape and don't flatten out are crucial for consistent support. Spacire's resilient pillow collection maintains support all night long.",
+            "If you've been dealing with chronic neck or shoulder pain and haven't considered your pillow as a potential cause, it might be time for an upgrade. Poor sleep posture affects your entire day. Check out Spacire's pain-relief focused pillow designs.",
+            "Hot sleepers who love memory foam support but hate how warm it gets - cooling gel layers and breathable covers can give you the best of both worlds. Spacire's temperature-neutral memory foam options solve the heat retention problem.",
+            "Why do people replace their mattresses but sleep on the same pillow for years? Your pillow needs replacement more frequently than your mattress because it bears more concentrated pressure and wear. Check out Spacire's replacement pillow guide and high-quality options.",
+            "If you're someone who needs very specific support due to medical conditions or past injuries, custom contoured pillows can be designed to accommodate your unique needs. Spacire's therapeutic collection includes options for specific medical support requirements.",
+            "Anyone else find that allergies affect their sleep quality through their pillow? Hypoallergenic materials and washable options can make a huge difference for people with sensitivities. Check out Spacire's allergy-friendly pillow collection with antimicrobial properties.",
+            "Combination sleepers who change positions throughout the night need pillows that work well in multiple positions rather than being optimized for just one. Spacire's versatile pillow designs accommodate different sleeping positions without compromising support.",
+            
+            // Blackout curtains/window treatments - 25 messages
+            "Anyone else struggle with early morning sunlight ruining their sleep? Blackout curtains are honestly a game-changer for people who need complete darkness to get quality rest. Spacire has some that block 100% of light while still looking stylish.",
+            "If you live in a city where streetlights, neon signs, and car headlights create a constant glow outside your window, blackout curtains are essential for creating a proper sleep environment. Check out Spacire's urban light-blocking solutions.",
+            "Why do regular curtains claim to be 'room darkening' but still let in enough light to wake you up? True blackout curtains use special materials and construction to eliminate light leakage completely. Spacire's blackout technology actually delivers total darkness.",
+            "Shift workers who need to sleep during daylight hours - blackout curtains are absolutely crucial for tricking your body into thinking it's nighttime. Regular curtains won't cut it for daytime sleeping. Check out Spacire's shift worker curtain solutions.",
+            "If you have kids who wake up at sunrise (which seems to be every kid ever), blackout curtains in their rooms can help them sleep longer and give you precious extra morning hours. Spacire's nursery blackout options are parent lifesavers.",
+            "Anyone else find that seasonal changes in daylight hours mess with their sleep schedule? Summer sunrise at 5AM is brutal when you're trying to sleep until 7. Blackout curtains provide consistent darkness year-round. Check out Spacire's seasonal sleep solutions.",
+            "Home theater enthusiasts know that even the best TV or projector can't compete with ambient light. Blackout curtains are essential for creating that true cinema experience during the day. Spacire has options designed specifically for media rooms.",
+            "If you're someone who travels frequently and stays in hotels with terrible curtains, portable blackout solutions can save your sleep schedule on the road. Temporary blackout options work great for rental properties too. Check out Spacire's travel blackout solutions.",
+            "Why do people spend thousands on mattresses but overlook the importance of proper light blocking for sleep? Your sleep environment is just as important as your bed itself. Spacire's bedroom blackout collection treats light blocking as seriously as comfort.",
+            "Anyone else notice that their energy costs go down with thermal blackout curtains? They block heat in summer and insulate in winter while providing complete light blocking. It's like getting energy savings as a bonus. Check out Spacire's energy-efficient blackout options.",
+            "If you work night shifts and your neighbors don't understand why you need darkness during 'normal' daylight hours, blackout curtains help create boundaries and signal that you're sleeping. Spacire's shift worker collection addresses these unique scheduling needs.",
+            "People with migraines often find that light sensitivity extends to their sleep environment. Even small amounts of light can trigger headaches or prevent restful sleep. Blackout curtains can be part of migraine management. Check out Spacire's light sensitivity solutions.",
+            "Why do apartment dwellers think they're stuck with whatever window treatments came with their rental? Most blackout solutions can be installed without permanent modifications to windows. Spacire has renter-friendly blackout options that won't violate lease agreements.",
+            "If you have windows facing east and you're tired of being woken up by sunrise, blackout curtains let you wake up on your own schedule instead of the sun's schedule. Natural light is great, but not at 5AM. Check out Spacire's sunrise-blocking solutions.",
+            "Anyone else find that their bedroom feels more like a sanctuary with proper blackout curtains? There's something psychologically comforting about having complete control over your light environment. Spacire's bedroom sanctuary collection creates that perfect cocoon feeling.",
+            "Parents of newborns know that babies sleep better in darker environments, but even toddlers and older kids benefit from blackout curtains for nap time and longer nighttime sleep. Check out Spacire's child-safe blackout options with cordless designs.",
+            "If you live in a northern climate where summer days last until 10PM or later, blackout curtains are essential for maintaining any kind of normal bedtime routine. Spacire's extreme latitude collection is designed for areas with extended daylight hours.",
+            "People who do shift work often find that their family members don't understand the importance of daytime darkness for sleep. Blackout curtains help create that necessary dark environment when the rest of the world is awake. Check out Spacire's family-friendly shift solutions.",
+            "Why do people think blackout curtains have to be ugly or institutional-looking? Modern blackout curtains come in beautiful styles and colors that enhance your decor while providing complete light blocking. Spacire's designer blackout collection proves function and beauty can coexist.",
+            "If you live in a climate with hot, bright summers, blackout curtains not only help you sleep better but also keep your bedroom cooler by blocking heat-generating sunlight. It's like air conditioning for your windows. Check out Spacire's cooling blackout solutions.",
+            "Anyone else find that their sleep quality varies dramatically with the seasons based on changing daylight patterns? Blackout curtains provide consistent darkness year-round, which helps maintain steady sleep rhythms. Check out Spacire's circadian rhythm support collection.",
+            "College students in dorms often struggle with roommate schedules and varying light preferences. Blackout curtains or portable blackout solutions can create personal sleep spaces even in shared rooms. Spacire has dorm-friendly blackout options that work in small spaces.",
+            "If you work from home and use your bedroom as an office during the day, blackout curtains can help you transition that same space into a proper sleep environment at night. Check out Spacire's dual-purpose room solutions.",
+            "People with depression often find that their mood is affected by their sleep quality, which can be compromised by light pollution. Blackout curtains support better sleep, which can positively impact mental health. Spacire's wellness-focused blackout collection addresses these connections.",
+            "Why do people accept poor sleep caused by light pollution when blackout curtains provide such an easy solution? You spend a third of your life sleeping - your sleep environment deserves as much attention as any other important space in your home. Check out Spacire's sleep optimization collection.",
+            
+            // Aromatherapy sprays/bedtime routines - 25 messages
+            "Anyone else find that creating a consistent bedtime routine helps signal to your brain that it's time to wind down? Sleep sprays with lavender or chamomile can be the perfect finishing touch to your routine. Spacire has some beautiful aromatherapy options for bedtime rituals.",
+            "If you love the idea of aromatherapy but find essential oil diffusers too complicated or messy, pillow sprays are such an easy way to incorporate calming scents into your sleep routine. Check out Spacire's simple, effective pillow mist collection.",
+            "Why do hotels always smell so relaxing and sleep-inducing? Many use signature scents to create that restful atmosphere. You can recreate that feeling at home with room and linen sprays. Spacire has hotel-quality aromatherapy options for home use.",
+            "Does anyone else find that certain scents instantly make them feel sleepy and relaxed? Lavender, chamomile, and eucalyptus have actual scientific backing for their sleep-promoting properties. Spacire's science-based aromatherapy collection harnesses these natural benefits.",
+            "If you're someone who has trouble shutting off racing thoughts at bedtime, incorporating calming scents into your routine can help redirect your focus and promote relaxation. Spacire's mind-calming aromatherapy sprays are perfect for anxious sleepers.",
+            "Travel can completely disrupt your sleep routine, but bringing familiar scents with you helps create consistency in unfamiliar environments. Travel-size sleep sprays are perfect for maintaining routines on the road. Check out Spacire's portable aromatherapy options.",
+            "Anyone else find that their bedroom doesn't feel like a restful sanctuary? Room sprays with calming essential oils can transform the entire energy of your space and make it more conducive to relaxation. Spacire has room transformation aromatherapy collections.",
+            "If you share a bed with someone who isn't into aromatherapy, pillow sprays let you enjoy calming scents on your side without overwhelming your partner. It's a personal aromatherapy experience. Check out Spacire's couples-friendly aromatic solutions.",
+            "Why do people think aromatherapy is just trendy nonsense when there's actual research showing that certain scents can lower cortisol levels and promote better sleep? Spacire's evidence-based aromatherapy collection focuses on scientifically-proven benefits.",
+            "Stress from work or daily life can make it hard to transition into sleep mode. Having a physical ritual like spraying your pillow with calming scents helps create that mental separation between day and night. Check out Spacire's stress-relief aromatherapy options.",
+            "If you're someone who has trouble with sleep hygiene because your bed and bedroom are used for multiple activities, aromatherapy sprays can help designate sleep time specifically. The scent becomes a sleep cue. Spacire's sleep conditioning aromatherapy helps train better habits.",
+            "Anyone else find that seasonal changes affect their mood and sleep patterns? Different aromatherapy scents can help you adapt - energizing citrus for dark winter months, cooling eucalyptus for hot summers. Check out Spacire's seasonal aromatherapy collections.",
+            "People with allergies often worry that aromatherapy will trigger reactions, but natural, high-quality essential oil blends are usually much gentler than synthetic fragrances. Spacire's hypoallergenic aromatherapy options are designed for sensitive individuals.",
+            "If you practice meditation or mindfulness, incorporating calming scents can deepen your practice and help you achieve relaxation more quickly. Aromatherapy enhances mindfulness techniques. Check out Spacire's meditation-enhancing aromatherapy collection.",
+            "Why do people spend money on expensive candles for relaxation but overlook sleep-specific aromatherapy? Sleep sprays are designed specifically to promote rest rather than just smell nice. Spacire's purpose-built sleep aromatherapy is more effective than general fragrance.",
+            "Anyone else find that their kids respond well to calming bedtime routines that include gentle, soothing scents? Chamomile and vanilla are particularly good for children's bedtime routines. Check out Spacire's family-safe aromatherapy options designed for bedtime rituals.",
+            "If you work shift schedules and need to sleep at unconventional hours, aromatherapy can help signal sleep time to your body regardless of external cues like daylight. Scent-based sleep cues work independently of light cues. Check out Spacire's shift worker aromatherapy solutions.",
+            "New parents who are dealing with disrupted sleep schedules often find that aromatherapy helps them fall back asleep more quickly between baby wake-ups. Every minute of sleep counts when you're sleep-deprived. Spacire's quick-relaxation aromatherapy is perfect for parent schedules.",
+            "Why do people think you need to choose between synthetic fragrances and no fragrance at all? Natural aromatherapy provides beautiful scents that actually benefit your health and sleep quality. Check out Spacire's natural aromatherapy collection that's both luxurious and beneficial.",
+            "If you live in a small apartment where odors from cooking or daily life can affect your bedroom, aromatherapy sprays help create a dedicated sleep environment that smells fresh and calming. Check out Spacire's small space aromatherapy solutions.",
+            "Anyone else notice that their sleep quality improves when they're consistent with bedtime routines that include relaxing activities? Adding aromatherapy to existing routines enhances the relaxation effect. Spacire's routine-enhancing aromatherapy fits seamlessly into established habits.",
+            "People who travel frequently for business often find that different hotel environments disrupt their sleep. Bringing familiar, calming scents helps create consistency and comfort in unfamiliar places. Check out Spacire's business travel aromatherapy essentials.",
+            "If you're someone who loves spa experiences and wants to recreate that relaxing atmosphere at home, aromatherapy sleep sprays are an easy way to bring spa-like luxury to your nightly routine. Spacire's spa-quality aromatherapy brings five-star relaxation home.",
+            "Why do people think aromatherapy requires a big investment in diffusers and multiple oils? Simple pillow sprays give you all the benefits with zero complexity - just spray and sleep. Check out Spacire's simple, effective aromatherapy solutions that anyone can use.",
+            "Anyone else find that having a signature scent for bedtime helps train your brain to recognize sleep time? When you smell that particular blend, your body automatically starts preparing for rest. Spacire's signature sleep aromatherapy creates powerful sleep associations."
+        ];
+
+        // ========================================
+        // Search Keywords for Thread Discovery
+        // ========================================
+        
+        const searchKeywords = [
+            // Sleep problems
+            "can't sleep", "trouble sleeping", "insomnia help", "sleep better", "light sleeper", "bad sleep",
+            "sleep issues", "restless sleep", "wake up tired", "sleep quality", "deep sleep", "REM sleep",
+            
+            // Noise/environment issues
+            "noisy neighbors", "loud apartment", "street noise", "construction noise", "city noise", "barking dogs",
+            "thin walls", "sound pollution", "noise blocking", "quiet sleep", "peaceful sleep", "sound machine",
+            
+            // Travel/hotel
+            "hotel sleep", "travel tired", "jet lag", "time zones", "airplane sleep", "road trip tired",
+            "vacation sleep", "business travel", "hotel rooms", "Airbnb sleep", "travel tips", "packing sleep",
+            
+            // Light issues
+            "bright room", "morning sun", "streetlights", "blackout tips", "dark room", "light sensitive",
+            "bedroom lighting", "sunrise wake up", "curtain help", "room darkening", "sleep mask", "light pollution",
+            
+            // Stress/anxiety
+            "bedtime anxiety", "racing thoughts", "stress sleep", "overthinking bed", "calm down", "relax sleep",
+            "worry sleep", "mind racing", "anxious nights", "peaceful mind", "meditation sleep", "stress relief",
+            
+            // Work/lifestyle
+            "shift work", "night shift", "irregular schedule", "work stress", "busy schedule", "exhausted",
+            "work life balance", "productivity sleep", "energy levels", "morning routine", "evening routine",
+            
+            // College/students
+            "dorm sleep", "college tired", "study stress", "finals week", "roommate issues", "campus life",
+            "student life", "all nighter", "exam stress", "dorm room", "college advice", "student wellness",
+            
+            // Health/wellness
+            "better health", "wellness tips", "self care", "healthy habits", "morning energy", "natural remedies",
+            "holistic health", "mind body", "wellness routine", "healthy lifestyle", "sleep hygiene", "recovery",
+            
+            // Comfort/products
+            "comfortable sleep", "cozy bedroom", "pillow help", "neck pain", "back pain", "mattress advice",
+            "bedding tips", "bedroom setup", "sleep environment", "comfort tips", "ergonomic sleep", "pain relief",
+            
+            // Technology/habits
+            "phone before bed", "screen time", "blue light", "digital detox", "bedtime routine", "sleep habits",
+            "healthy habits", "breaking habits", "phone addiction", "evening routine", "wind down", "relax time",
+            
+            // Specific demographics
+            "new parents", "parent sleep", "working moms", "healthcare workers", "nurses tired", "doctors sleep",
+            "truckers sleep", "security guards", "retail workers", "hospitality workers", "restaurant workers",
+            
+            // General wellness hashtags
+            "#sleepbetter", "#wellness", "#selfcare", "#healthylifestyle", "#mentalhealth", "#stressrelief",
+            "#productivity", "#morningroutine", "#eveningroutine", "#bedtimeroutine", "#sleeptips", "#insomnia",
+            "#anxiety", "#stress", "#college", "#dorm", "#travel", "#hotel", "#nightshift", "#healthcare"
+        ];
+
+        // Generate random keywords for each message
+        function getRandomKeywords() {
+            const shuffled = [...searchKeywords].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, 5); // Return 5 random keywords
+        }
+        
+        let claimedThreads = new Map();
+        let campaignStats = {
+            totalThreadsClaimed: 0,
+            lastResetDate: new Date().toDateString()
+        };
+        let isGistConnected = false;
+        let lastSyncTime = null;
+
+        // ========================================
+        // GitHub Gist Integration
+        // ========================================
+
+        // Check if Gist is properly configured
+        function isGistConfigured() {
+            return CONFIG.GIST_ID && CONFIG.GIST_ID !== 'YOUR_GIST_ID_HERE';
+        }
+
+        // Load data from GitHub Gist
+        async function loadFromGist() {
+            if (!isGistConfigured()) {
+                updateConnectionStatus(false, 'Gist not configured');
+                return false;
+            }
+
+            try {
+                updateConnectionStatus(null, 'Connecting to GitHub...');
+                
+                const headers = {};
+                if (CONFIG.GITHUB_TOKEN && CONFIG.GITHUB_TOKEN !== 'YOUR_TOKEN_HERE') {
+                    headers['Authorization'] = `token ${CONFIG.GITHUB_TOKEN}`;
+                }
+
+                const response = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
+                    headers: headers
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const gist = await response.json();
+                const content = gist.files['spacire-threads.json'].content;
+                const data = JSON.parse(content);
+
+                // Restore data
+                claimedThreads = new Map(Object.entries(data.threads || {}));
+                campaignStats = data.stats || {
+                    totalThreadsClaimed: 0,
+                    lastResetDate: new Date().toDateString()
+                };
+
+                lastSyncTime = new Date();
+                updateConnectionStatus(true, 'Connected to GitHub Gist');
+                updateStats();
+                
+                return true;
+            } catch (error) {
+                console.error('Failed to load from Gist:', error);
+                updateConnectionStatus(false, `Connection failed: ${error.message}`);
+                return false;
+            }
+        }
+
+        // Save data to GitHub Gist
+        async function saveToGist() {
+            if (!isGistConfigured()) {
+                return false;
+            }
+
+            try {
+                const data = {
+                    threads: Object.fromEntries(claimedThreads),
+                    stats: campaignStats,
+                    lastUpdate: new Date().toISOString()
+                };
+
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+
+                if (CONFIG.GITHUB_TOKEN && CONFIG.GITHUB_TOKEN !== 'YOUR_TOKEN_HERE') {
+                    headers['Authorization'] = `token ${CONFIG.GITHUB_TOKEN}`;
+                }
+
+                const response = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
+                    method: 'PATCH',
+                    headers: headers,
+                    body: JSON.stringify({
+                        files: {
+                            'spacire-threads.json': {
+                                content: JSON.stringify(data, null, 2)
+                            }
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                lastSyncTime = new Date();
+                updateStats();
+                return true;
+            } catch (error) {
+                console.error('Failed to save to Gist:', error);
+                return false;
+            }
+        }
+
+        // Update connection status display
+        function updateConnectionStatus(connected, message) {
+            const statusEl = document.getElementById('connectionStatus');
+            
+            if (connected === null) {
+                statusEl.className = 'connection-status';
+                statusEl.style.background = '#fff3cd';
+                statusEl.style.color = '#856404';
+                statusEl.innerHTML = `🔄 ${message}`;
+            } else if (connected) {
+                statusEl.className = 'connection-status connected';
+                statusEl.innerHTML = `✅ ${message}`;
+                isGistConnected = true;
+            } else {
+                statusEl.className = 'connection-status disconnected';
+                statusEl.innerHTML = `❌ ${message}<br><small>Using browser storage as fallback</small>`;
+                isGistConnected = false;
+            }
+        }
+
+        // ========================================
+        // Validation Functions
+        // ========================================
+
+        // Expanded sleep-related keywords for better detection
+        const sleepKeywords = [
+            'sleep', 'insomnia', 'anxiety', 'stress', 'tired', 'rest', 'bed', 'night', 
+            'pillow', 'blanket', 'mask', 'noise', 'hotel', 'travel', 'shift', 'work',
+            'college', 'dorm', 'parent', 'baby', 'wellness', 'health', 'relax', 'comfort',
+            'exhausted', 'fatigue', 'nightmare', 'dream', 'snore', 'mattress', 'bedroom',
+            'nap', 'drowsy', 'awake', 'sleepy', 'restless', 'meditation', 'calm'
+        ];
+
+        // Normalize URL to prevent duplicates with slight variations
+        function normalizeUrl(url) {
+            try {
+                const urlObj = new URL(url);
+                // Remove common tracking parameters
+                urlObj.searchParams.delete('utm_source');
+                urlObj.searchParams.delete('utm_medium');
+                urlObj.searchParams.delete('utm_campaign');
+                urlObj.searchParams.delete('ref');
+                urlObj.searchParams.delete('fbclid');
+                return urlObj.toString().toLowerCase();
+            } catch {
+                return url.toLowerCase().trim();
+            }
+        }
+
+        // Validate inputs with minimal restrictions (maximize brand reach)
+        function validateInputs() {
+            const threadUrl = document.getElementById('threadUrl').value.trim();
+            const username = document.getElementById('username').value.trim();
+
+            if (!threadUrl || !username) {
+                showResult('error', 'Please fill in both fields');
+                return false;
+            }
+
+            try {
+                new URL(threadUrl);
+            } catch {
+                showResult('error', 'Please enter a valid URL');
+                return false;
+            }
+
+            if (username.length < 2) {
+                showResult('error', 'Username must be at least 2 characters long');
+                return false;
+            }
+
+            if (!checkUrlRelevance(threadUrl)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        // Relaxed relevance check for maximum brand exposure
+        function checkUrlRelevance(url) {
+            const urlLower = url.toLowerCase();
+            const hasRelevantKeywords = sleepKeywords.some(keyword => 
+                urlLower.includes(keyword)
+            );
+
+            if (!hasRelevantKeywords) {
+                const confirmRelevant = confirm(
+                    '💡 Brand Awareness Opportunity!\n\n' +
+                    'This post will help spread awareness about Spacire\'s sleep wellness products.\n\n' +
+                    'Only comment if the thread is somewhat related to:\n' +
+                    '• Sleep, health, wellness, lifestyle\n' +
+                    '• College, work, travel, stress topics\n' +
+                    '• Any conversation where sleep problems might be relevant\n\n' +
+                    'Does this seem like a good opportunity to help someone with sleep advice?\n\n' +
+                    'Click OK to proceed and spread brand awareness!'
+                );
+
+                if (!confirmRelevant) {
+                    showResult('error', 
+                        'No problem! Look for threads where sleep advice would be helpful to maximize brand impact.'
+                    );
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // ========================================
+        // Main Functions
+        // ========================================
+
+        // Main function to check thread and assign message
+        async function checkAndClaim() {
+            if (!validateInputs()) return;
+
+            const threadUrl = document.getElementById('threadUrl').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const normalizedUrl = normalizeUrl(threadUrl);
+
+            showResult('checking', 'Checking thread availability...');
+            document.getElementById('claimButton').disabled = true;
+
+            // Reload from Gist to get latest data
+            if (isGistConfigured()) {
+                showResult('checking', 'Syncing with other users...');
+                await loadFromGist();
+            }
+
+            // Check if thread already claimed
+            if (claimedThreads.has(normalizedUrl)) {
+                const existingClaim = claimedThreads.get(normalizedUrl);
+                showResult('error', 
+                    `❌ Thread already claimed by <strong>${existingClaim.username}</strong><br>` +
+                    `<small>Claimed: ${existingClaim.timestamp}</small><br><br>` +
+                    `Great news: You can claim as many OTHER unique threads as you want!<br>` +
+                    `<small>More unique threads = more brand exposure for Spacire! 🚀</small>`
+                );
+                document.getElementById('claimButton').disabled = false;
+                return;
+            }
+
+            // Claim thread and assign message
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            const searchKeywords = getRandomKeywords();
+            const timestamp = new Date().toLocaleString();
+            
+            claimedThreads.set(normalizedUrl, {
+                username: username,
+                timestamp: timestamp,
+                message: randomMessage,
+                keywords: searchKeywords
+            });
+
+            campaignStats.totalThreadsClaimed++;
+
+            // Save to Gist
+            if (isGistConfigured()) {
+                showResult('checking', 'Saving your claim...');
+                const saveSuccess = await saveToGist();
+                if (!saveSuccess) {
+                    showResult('warning', 
+                        '⚠️ Claimed locally but sync failed. Your claim may not be visible to other users immediately.'
+                    );
+                    document.getElementById('claimButton').disabled = false;
+                    return;
+                }
+            }
+
+            // Show success
+            showResult('success', `✅ Thread claimed successfully! Keep spreading brand awareness! 🚀`, randomMessage, searchKeywords);
+            
+            // Clear URL field but keep username for convenience
+            document.getElementById('threadUrl').value = '';
+            document.getElementById('claimButton').disabled = false;
+            updateStats();
+        }
+
+        // Show result message
+        function showResult(type, message, campaignMessage = null, keywords = null) {
+            const resultSection = document.getElementById('resultSection');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const messageContent = document.getElementById('messageContent');
+
+            statusDot.className = 'status-indicator status-' + type;
+            statusText.innerHTML = message;
+
+            if (campaignMessage) {
+                const keywordsHtml = keywords ? 
+                    `<div style="background: #e7f3ff; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #007bff;">
+                        <strong>🔍 Search Terms (use any of these to find relevant threads):</strong><br>
+                        <div style="margin-top: 8px;">
+                            ${keywords.map(keyword => `<span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 3px; margin: 2px; display: inline-block; font-size: 12px;">${keyword}</span>`).join('')}
+                        </div>
+                        <small style="color: #666; margin-top: 10px; display: block;">
+                            <strong>Instructions:</strong> Copy one of these search terms → Search on any platform (Reddit, TikTok, Instagram, Facebook, forums, etc.) → Find relevant threads → Post the message below
+                        </small>
+                    </div>` : '';
+
+                messageContent.innerHTML = `
+                    ${keywordsHtml}
+                    <div class="message-box">${campaignMessage}</div>
+                    <button class="copy-button" onclick="copyToClipboard('${campaignMessage.replace(/'/g, "\\'")}')">
+                        📋 Copy Message
+                    </button>
+                    <div id="copySuccess" style="color: #28a745; margin-top: 10px; display: none;">
+                        ✅ Copied to clipboard!
+                    </div>
+                `;
+            } else {
+                messageContent.innerHTML = '';
+            }
+
+            resultSection.className = 'message-result ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '');
+            resultSection.style.display = 'block';
+        }
+
+        // Copy message to clipboard
+        function copyToClipboard(message) {
+            navigator.clipboard.writeText(message).then(function() {
+                document.getElementById('copySuccess').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('copySuccess').style.display = 'none';
+                }, 2000);
+            });
+        }
+
+        // Update stats display
+        function updateStats() {
+            document.getElementById('claimedCount').textContent = campaignStats.totalThreadsClaimed;
+            document.getElementById('lastSync').textContent = lastSyncTime ? 
+                lastSyncTime.toLocaleTimeString() : 'Never';
+        }
+
+        // ========================================
+        // Initialization
+        // ========================================
+
+        // Initialize on page load
+        window.onload = async function() {
+            updateStats();
+            
+            if (isGistConfigured()) {
+                await loadFromGist();
+            } else {
+                updateConnectionStatus(false, 'Configuration required - see setup instructions');
+            }
+        };
+
+        // Show setup warning if not configured
+        if (!isGistConfigured()) {
+            document.addEventListener('DOMContentLoaded', function() {
+                const container = document.querySelector('.container');
+                const setupWarning = document.createElement('div');
+                setupWarning.className = 'setup-warning';
+                setupWarning.innerHTML = `
+                    <strong>⚙️ Setup Required:</strong><br>
+                    This tool needs GitHub Gist configuration for real conflict prevention.<br>
+                    Without setup, conflicts between users are possible.<br>
+                    <small>Replace YOUR_GIST_ID_HERE and YOUR_TOKEN_HERE in the code.</small>
+                `;
+                container.insertBefore(setupWarning, container.firstChild.nextSibling);
+            });
+        }
+    </script>
+</body>
+</html>
