@@ -170,7 +170,7 @@
             
             <strong>📋 How it works:</strong><br>
             1. Get your search keywords below<br>
-            2. Use the search keywords on major social media platforms to find popular discussion threads with comments (Facebook, Instagram, Youtube, X, Reddit, TikTok)<br>
+            2. Use the search keywords on major social media platforms to find popular discussion threads or videos with comments (Facebook, Instagram, Youtube, X, Reddit, TikTok)<br>
             3. Come back here, enter the thread URL + your username to get your message<br>
             4. Post your helpful message to the thread!<br><br>
             
@@ -189,7 +189,7 @@
                     <strong>🔍 Your Search Terms:</strong><br>
                     <div id="keywordDisplay" style="margin-top: 8px;"></div>
                     <small style="color: #666; margin-top: 10px; display: block;">
-                        <strong>Instructions:</strong> Copy any of these search terms → Search on major social media platforms → Find relevant discussion threads with comments → Come back here with the URL
+                        <strong>Instructions:</strong> Copy any of these search terms → Search on major social media platforms → Find relevant threads or videos with comments → Come back here with the URL
                     </small>
                 </div>
             </div>
@@ -625,7 +625,7 @@
                 };
 
                 lastSyncTime = new Date();
-                updateConnectionStatus(true, 'Connected');
+                updateConnectionStatus(true, 'Connected to GitHub Gist');
                 updateStats();
                 
                 return true;
@@ -715,18 +715,92 @@
             'nap', 'drowsy', 'awake', 'sleepy', 'restless', 'meditation', 'calm'
         ];
 
-        // Normalize URL to prevent duplicates with slight variations
+        // Comprehensive URL normalization to handle platform-specific parameters
         function normalizeUrl(url) {
             try {
                 const urlObj = new URL(url);
-                // Remove common tracking parameters
-                urlObj.searchParams.delete('utm_source');
-                urlObj.searchParams.delete('utm_medium');
-                urlObj.searchParams.delete('utm_campaign');
-                urlObj.searchParams.delete('ref');
-                urlObj.searchParams.delete('fbclid');
-                return urlObj.toString().toLowerCase();
-            } catch {
+                
+                // Comprehensive list of tracking/personalization parameters to remove
+                const parametersToRemove = [
+                    // General tracking
+                    'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+                    'ref', 'referer', 'referrer', 'source', 'campaign',
+                    
+                    // Facebook/Meta
+                    'fbclid', 'fb_source', 'fb_ref', 'fref', 'hc_ref', 'refsrc',
+                    'fb_dtsg', 'fb_dtsg_ag', '__tn__', '__cft__', '__reqid',
+                    
+                    // Instagram
+                    'igshid', 'igsh', 'img_index',
+                    
+                    // YouTube
+                    'si', 'feature', 't', 'start', 'end', 'index', 'pp',
+                    
+                    // TikTok
+                    'is_from_webapp', 'sender_device', 'sender_web_id', '_r', '_d',
+                    'sec_user_id', 'u_code', 'timestamp', '_signature',
+                    
+                    // Twitter/X
+                    's', 'ref_src', 'ref_url', 'twclid', 'cxt',
+                    
+                    // Reddit
+                    'context', 'sort', 'rdt_cid', 'utm_name', 'share_id',
+                    
+                    // LinkedIn
+                    'trackingId', 'refId', 'trk', 'originalReferer',
+                    
+                    // General session/device tracking
+                    'sessionid', 'session_id', 'device_id', 'client_id',
+                    'gclid', 'msclkid', 'dclid', '_ga', '_gid',
+                    
+                    // Locale/regional
+                    'locale', 'lang', 'hl', 'region', 'country',
+                    
+                    // App/mobile specific
+                    'app', 'platform', 'version', 'build'
+                ];
+                
+                // Remove all tracking parameters
+                parametersToRemove.forEach(param => {
+                    urlObj.searchParams.delete(param);
+                });
+                
+                // Platform-specific URL cleaning
+                let cleanUrl = urlObj.toString().toLowerCase();
+                
+                // Facebook: Remove mobile/desktop variations
+                cleanUrl = cleanUrl.replace(/m\.facebook\.com/g, 'facebook.com');
+                cleanUrl = cleanUrl.replace(/www\.facebook\.com/g, 'facebook.com');
+                cleanUrl = cleanUrl.replace(/mbasic\.facebook\.com/g, 'facebook.com');
+                
+                // Instagram: Normalize variations
+                cleanUrl = cleanUrl.replace(/www\.instagram\.com/g, 'instagram.com');
+                
+                // YouTube: Remove mobile variations
+                cleanUrl = cleanUrl.replace(/m\.youtube\.com/g, 'youtube.com');
+                cleanUrl = cleanUrl.replace(/youtu\.be\//g, 'youtube.com/watch?v=');
+                
+                // Reddit: Normalize old/new/mobile versions
+                cleanUrl = cleanUrl.replace(/old\.reddit\.com/g, 'reddit.com');
+                cleanUrl = cleanUrl.replace(/new\.reddit\.com/g, 'reddit.com');
+                cleanUrl = cleanUrl.replace(/m\.reddit\.com/g, 'reddit.com');
+                cleanUrl = cleanUrl.replace(/www\.reddit\.com/g, 'reddit.com');
+                
+                // TikTok: Remove regional domains
+                cleanUrl = cleanUrl.replace(/vm\.tiktok\.com/g, 'tiktok.com');
+                cleanUrl = cleanUrl.replace(/www\.tiktok\.com/g, 'tiktok.com');
+                
+                // Twitter/X: Normalize domain variations
+                cleanUrl = cleanUrl.replace(/mobile\.twitter\.com/g, 'twitter.com');
+                cleanUrl = cleanUrl.replace(/x\.com/g, 'twitter.com'); // Handle X rebrand
+                
+                // Remove trailing slashes and normalize
+                cleanUrl = cleanUrl.replace(/\/+$/, '');
+                
+                return cleanUrl;
+                
+            } catch (error) {
+                console.warn('URL normalization failed:', error);
                 return url.toLowerCase().trim();
             }
         }
