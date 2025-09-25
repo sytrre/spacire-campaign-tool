@@ -250,6 +250,13 @@
         };
 
         // ========================================
+        // Workflow Control Variables
+        // ========================================
+        let step1Completed = false;
+        let timerInterval = null;
+        let remainingTime = 30; // 30 seconds timer
+
+        // ========================================
         // Your 225 Spacire Messages
         // ========================================
         
@@ -591,7 +598,7 @@
 
         // Check if Gist is properly configured
         function isGistConfigured() {
-            return CONFIG.GIST_ID && CONFIG.GIST_ID !== 'YOUR_GIST_ID_HERE';
+            return CONFIG.GIST_ID && CONFIG.GIST_ID !== '{{SPACIRE_GIST_ID}}';
         }
 
         // Load data from GitHub Gist
@@ -605,7 +612,7 @@
                 updateConnectionStatus(null, 'Connecting to GitHub...');
                 
                 const headers = {};
-                if (CONFIG.GITHUB_TOKEN && CONFIG.GITHUB_TOKEN !== 'YOUR_TOKEN_HERE') {
+                if (CONFIG.GITHUB_TOKEN && CONFIG.GITHUB_TOKEN !== '{{SPACIRE_GITHUB_TOKEN}}') {
                     headers['Authorization'] = `token ${CONFIG.GITHUB_TOKEN}`;
                 }
 
@@ -657,7 +664,7 @@
                     'Content-Type': 'application/json'
                 };
 
-                if (CONFIG.GITHUB_TOKEN && CONFIG.GITHUB_TOKEN !== 'YOUR_TOKEN_HERE') {
+                if (CONFIG.GITHUB_TOKEN && CONFIG.GITHUB_TOKEN !== '{{SPACIRE_GITHUB_TOKEN}}') {
                     headers['Authorization'] = `token ${CONFIG.GITHUB_TOKEN}`;
                 }
 
@@ -858,35 +865,6 @@
             }
         }
 
-        // Validate inputs with minimal restrictions (maximize brand reach)
-        function validateInputs() {
-            const threadUrl = document.getElementById('threadUrl').value.trim();
-            const username = document.getElementById('username').value.trim();
-
-            if (!threadUrl || !username) {
-                showResult('error', 'Please fill in both fields');
-                return false;
-            }
-
-            try {
-                new URL(threadUrl);
-            } catch {
-                showResult('error', 'Please enter a valid URL');
-                return false;
-            }
-
-            if (username.length < 2) {
-                showResult('error', 'Username must be at least 2 characters long');
-                return false;
-            }
-
-            if (!checkUrlRelevance(threadUrl)) {
-                return false;
-            }
-
-            return true;
-        }
-
         // Relaxed relevance check for maximum brand exposure
         function checkUrlRelevance(url) {
             const urlLower = url.toLowerCase();
@@ -923,6 +901,8 @@
 
         // Get search keywords function (Step 1)
         function getSearchKeywords() {
+            console.log('getSearchKeywords() called');
+            
             const keywords = getRandomKeywords();
             
             // Display keywords
@@ -933,6 +913,109 @@
             
             // Show the keyword section
             document.getElementById('keywordSection').style.display = 'block';
+            
+            // Mark step 1 as completed and start timer
+            step1Completed = true;
+            console.log('Step 1 completed, starting timer...');
+            startSearchTimer();
+            
+            // Disable the keyword button to prevent re-clicking
+            document.getElementById('keywordButton').disabled = true;
+            document.getElementById('keywordButton').innerHTML = '✅ Keywords Generated';
+        }
+
+        // Start the 30-second search timer for Step 2
+        function startSearchTimer() {
+            console.log('startSearchTimer() called');
+            remainingTime = 30; // Reset to 30 seconds
+            
+            // Show timer display and update step 2 instructions
+            const timerDisplay = document.getElementById('timerDisplay');
+            const step2Instructions = document.getElementById('step2Instructions');
+            const countdown = document.getElementById('countdown');
+            
+            console.log('Timer elements found:', timerDisplay, step2Instructions, countdown);
+            
+            timerDisplay.style.display = 'block';
+            step2Instructions.innerHTML = 'Timer started - please search for relevant threads using your keywords above.';
+            countdown.textContent = remainingTime;
+            
+            console.log('Timer display updated, remaining time:', remainingTime);
+            
+            // Clear any existing timer
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            // Update countdown every second
+            timerInterval = setInterval(function() {
+                remainingTime--;
+                console.log('Timer tick, remaining:', remainingTime);
+                countdown.textContent = remainingTime;
+                
+                if (remainingTime <= 0) {
+                    console.log('Timer complete, unlocking Step 2');
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    unlockStep2();
+                }
+            }, 1000);
+            
+            console.log('Timer interval started');
+        }
+
+        // Unlock Step 2 after timer completion
+        function unlockStep2() {
+            console.log('unlockStep2() called');
+            
+            document.getElementById('timerDisplay').style.display = 'none';
+            document.getElementById('step2Instructions').innerHTML = 'Timer complete! Now enter your thread details:';
+            document.getElementById('threadUrl').disabled = false;
+            document.getElementById('username').disabled = false;
+            
+            // Enable Step 3 button (it will validate inputs when clicked)
+            document.getElementById('claimButton').disabled = false;
+            
+            console.log('Step 2 unlocked successfully');
+        }
+
+        // Enhanced input validation with workflow checks
+        function validateInputs() {
+            if (!step1Completed) {
+                showResult('error', 'Please complete Step 1 first - get your search keywords!');
+                return false;
+            }
+
+            if (remainingTime > 0) {
+                showResult('error', `Please wait ${remainingTime} more seconds to ensure you've had time to search for relevant threads.`);
+                return false;
+            }
+
+            const threadUrl = document.getElementById('threadUrl').value.trim();
+            const username = document.getElementById('username').value.trim();
+
+            if (!threadUrl || !username) {
+                showResult('error', 'Please fill in both the thread URL and your username');
+                return false;
+            }
+
+            try {
+                new URL(threadUrl);
+            } catch {
+                showResult('error', 'Please enter a valid URL');
+                return false;
+            }
+
+            if (username.length < 2) {
+                showResult('error', 'Username must be at least 2 characters long');
+                return false;
+            }
+
+            if (!checkUrlRelevance(threadUrl)) {
+                return false;
+            }
+
+            return true;
         }
 
         // Main function to check thread and assign message
@@ -997,6 +1080,9 @@
             document.getElementById('threadUrl').value = '';
             document.getElementById('claimButton').disabled = false;
             updateStats();
+
+            // Reset workflow for next use
+            resetWorkflow();
         }
 
         // Show result message
@@ -1035,6 +1121,39 @@
                     document.getElementById('copySuccess').style.display = 'none';
                 }, 2000);
             });
+        }
+
+        // Reset workflow for another thread claim
+        function resetWorkflow() {
+            step1Completed = false;
+            remainingTime = 30; // 30 seconds timer
+            
+            // Clear timer if running
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            // Re-enable Step 1
+            document.getElementById('keywordButton').disabled = false;
+            document.getElementById('keywordButton').innerHTML = '🔍 Get Search Keywords';
+            
+            // Reset Step 2
+            document.getElementById('step2Instructions').innerHTML = 'Complete Step 1 first to unlock this section.';
+            document.getElementById('threadUrl').disabled = true;
+            document.getElementById('threadUrl').value = '';
+            document.getElementById('username').disabled = true;
+            // Keep username value for convenience - don't clear it
+            
+            // Reset Step 3
+            document.getElementById('claimButton').disabled = true;
+            
+            // Hide displays
+            document.getElementById('timerDisplay').style.display = 'none';
+            document.getElementById('keywordSection').style.display = 'none';
+            
+            // Reset countdown display
+            document.getElementById('countdown').textContent = '30';
         }
 
         // Update stats display (admin only when ?admin=true)
@@ -1079,7 +1198,7 @@
                     <strong>⚙️ Setup Required:</strong><br>
                     This tool needs GitHub Gist configuration for real conflict prevention.<br>
                     Without setup, conflicts between users are possible.<br>
-                    <small>Replace YOUR_GIST_ID_HERE and YOUR_TOKEN_HERE in the code.</small>
+                    <small>Replace {{SPACIRE_GIST_ID}} and {{SPACIRE_GITHUB_TOKEN}} in the code.</small>
                 `;
                 container.insertBefore(setupWarning, container.firstChild.nextSibling);
             });
